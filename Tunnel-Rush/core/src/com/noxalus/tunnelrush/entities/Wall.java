@@ -70,7 +70,7 @@ public class Wall implements DrawableGameEntity
 
 		border = new Sprite(texture);
 		border.setSize(Config.WallBorderWidth, Config.WallHeight);
-		border.setColor(Config.WallColorsDebug[id]/*Color.valueOf("000000")*/);
+		border.setColor(Color.valueOf("000000"));
 
 		if (id == Config.MaxWallNumber + 2)
 		{
@@ -124,6 +124,7 @@ public class Wall implements DrawableGameEntity
 			border.setPosition(sprite.getX(), sprite.getY());
 			
 			joinBorder.setY(sprite.getY() + sprite.getHeight());
+			//joinBorder.setPosition(sprite.getX(), sprite.getY() + sprite.getHeight());
 			
 			if (id == Config.MaxWallNumber + 2)
 				borderBottom.setPosition(Config.GameWidth - sprite.getWidth() - Config.WallStep + outScreenSpace,
@@ -136,7 +137,7 @@ public class Wall implements DrawableGameEntity
 	@Override
 	public void Draw(SpriteBatch spriteBatch)
 	{
-		//sprite.draw(spriteBatch);
+		sprite.draw(spriteBatch);
 		border.draw(spriteBatch);
 
 		if (!hasReset && id == Config.MaxWallNumber + 2)
@@ -246,48 +247,31 @@ public class Wall implements DrawableGameEntity
 				if (previousWallWidth < width)
 				{
 					difference = previousWallWidth - width;
-					//joinBorder.setColor(Color.valueOf("ffffff"));
 					joinBorder.setX(joinBorder.getX() + difference + Config.WallStep);
 				}
 				else
 				{
 					difference = previousWallWidth - width + Config.WallStep;
-					//joinBorder.setColor(Color.valueOf("ff0000"));
 				}
-				
-				joinBorder.setColor(Color.valueOf("000000"));
 			}
 			else
 			{
-				float x = sprite.getX();
-				float result = x + outScreenSpace - width;
-				float result2 = sprite.getX() - outScreenSpace + width;
-				joinBorder.setX(x);
+				joinBorder.setX(Config.GameWidth - (width + Config.WallStep));
 				float previousWallWidth = rightWalls.get((id + 1) % rightWalls.size()).sprite.getWidth() - outScreenSpace;
 				if (previousWallWidth < width)
 				{
 					difference = previousWallWidth - width;
-					joinBorder.setColor(Color.valueOf("ffffff"));
-					//joinBorder.setX(joinBorder.getX() + difference + Config.WallStep);
 				}
 				else
 				{
 					difference = previousWallWidth - width + Config.WallStep;
-					joinBorder.setColor(Color.valueOf("ff0000"));
-					//joinBorder.setX(joinBorder.getX() - difference);
+					joinBorder.setX(joinBorder.getX() - difference + Config.WallStep);
 				}
-				
-				joinBorder.setColor(Config.WallColorsDebug[id]);
 			}
 			
+			joinBorder.setColor(Color.valueOf("000000"));
 			joinBorder.setSize(Math.abs(difference), Config.WallBorderWidth);
-			
-			if (!isLeftWall)
-				joinBorder.setSize(100, Config.WallBorderWidth);
-			
 		}
-
-		//joinBorder.setSize(Config.WallStep * 2, Config.WallStep);
 
 		return width;
 	}

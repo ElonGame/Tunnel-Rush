@@ -169,7 +169,7 @@ public class Wall implements DrawableGameEntity
 				if (width + wallDistance > Config.GameWidth - Config.WallStep)
 					factor = -1;
 
-				width += Config.WallStep * factor/* * Random(1, 10)*/;
+				width += Config.WallStep * factor/* * Random(1, 5)*/;
 			}
 			else
 			{
@@ -178,7 +178,7 @@ public class Wall implements DrawableGameEntity
 				if (width <= Config.MinWallWidth)
 					factor = 1;
 				
-				width += Config.WallStep * factor * Random(1, 10);
+				width += Config.WallStep * factor /** Random(1, 5)*/;
 			}
 		}
 		else

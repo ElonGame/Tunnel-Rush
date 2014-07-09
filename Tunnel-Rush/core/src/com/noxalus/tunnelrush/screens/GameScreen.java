@@ -272,10 +272,10 @@ public class GameScreen implements Screen
 
 		spriteBatch.begin();
 
-		player.Draw(spriteBatch);
-
 		tunnel.Draw(spriteBatch);
 
+		player.Draw(spriteBatch);
+		
 		spriteBatch.end();
 
 		//player.DrawBoundingBox();
@@ -344,8 +344,8 @@ public class GameScreen implements Screen
 			font.draw(spriteBatch, "Dead: TRUE", 0, 80);
 		*/
 		
-		font.draw(spriteBatch, "Position: (" + player.getSprite().getX() + ", " + player.getSprite().getY() + ")", 0, 60);
-		/*font.draw(spriteBatch, player.initialSpritePosition.toString(), 0, 120);
+		/*font.draw(spriteBatch, "Position: (" + player.getSprite().getX() + ", " + player.getSprite().getY() + ")", 0, 60);
+		font.draw(spriteBatch, player.initialSpritePosition.toString(), 0, 120);
 		font.draw(spriteBatch, player.initialTouchPosition.toString(), 0, 180);
 		font.draw(spriteBatch, player.currentTouchPosition.toString(), 0, 240);
 		font.draw(spriteBatch, player.touchMoveDelta.toString(), 0, 280);

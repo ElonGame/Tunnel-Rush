@@ -7,14 +7,14 @@ import com.badlogic.gdx.audio.Music.OnCompletionListener;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
+import com.noxalus.tunnelrush.Assets;
 import com.noxalus.tunnelrush.Config;
+import com.noxalus.tunnelrush.TunnelRush;
 import com.noxalus.tunnelrush.entities.Player;
 import com.noxalus.tunnelrush.entities.Tunnel;
 import com.noxalus.tunnelrush.tasks.ChangeCameraRotationTask;
@@ -22,6 +22,8 @@ import com.noxalus.tunnelrush.tasks.ChangeWallDistanceTask;
 
 public class GameScreen implements Screen
 {
+	private TunnelRush game;
+	
 	// Camera
 	public OrthographicCamera camera;
 	private OrthographicCamera hudCamera;
@@ -37,14 +39,6 @@ public class GameScreen implements Screen
 	}
 	
 	public CameraRotationType cameraRotationType;
-
-	private SpriteBatch spriteBatch;
-
-	// Textures & Sprites
-	private Texture texture;
-
-	// Fonts
-	private BitmapFont font;
 
 	// Game logic
 	public Player player;
@@ -62,7 +56,6 @@ public class GameScreen implements Screen
 	public float maxWallDistance;
 	public WallDistanceType wallDistanceType;
 	
-	
 	// Scores
 	public float score;
 	private int highscore;
@@ -75,10 +68,6 @@ public class GameScreen implements Screen
 	// Tasks
 	Task changeWallDistanceTask;
 	Task changeCameraRotationTask;
-	
-	// Music
-	Music introMusic;
-	Music loopMusic;
 
 	// Text
 	TextBounds scoreTextBounds;
@@ -91,8 +80,10 @@ public class GameScreen implements Screen
 	// Debug
 	FPSLogger fpsLogger;
 
-	public GameScreen()
+	public GameScreen(TunnelRush game)
 	{
+		this.game = game;
+		
 		fpsLogger = new FPSLogger();
 		
 		maxWallDistance = Config.InitialMaxWallDistance;
@@ -116,31 +107,21 @@ public class GameScreen implements Screen
 		// Tasks
 		changeWallDistanceTask = new ChangeWallDistanceTask(this);
 		changeCameraRotationTask = new ChangeCameraRotationTask(this);
-
-		spriteBatch = new SpriteBatch();
-
-		font = new BitmapFont(Gdx.files.internal("data/graphics/fonts/classic.fnt"),
-				Gdx.files.internal("data/graphics/fonts/classic.png"), true);
 		
 		// Text
 		scoreTextString = "Score";
-		scoreTextBounds = font.getBounds(scoreTextString);
+		scoreTextBounds = Assets.font.getBounds(scoreTextString);
 		
 		highscoreTextString = "Best: ";
-		highscoreTextBounds = font.getBounds(highscoreTextString);
+		highscoreTextBounds = Assets.font.getBounds(highscoreTextString);
 		
 		deathNumberTextString = "Deaths: ";
-		deathNumberTextBounds = font.getBounds(deathNumberTextString);
-		
-		// Music
-		introMusic = Gdx.audio.newMusic(Gdx.files.internal("data/audio/bgm/intro.mp3"));
-		loopMusic = Gdx.audio.newMusic(Gdx.files.internal("data/audio/bgm/loop.mp3"));
-		loopMusic.setLooping(true);
+		deathNumberTextBounds = Assets.font.getBounds(deathNumberTextString);
 
-		introMusic.setOnCompletionListener(new OnCompletionListener() {
+		Assets.introMusic.setOnCompletionListener(new OnCompletionListener() {
 			public void onCompletion(Music music) {
 				cameraRotationEnabled = true;
-				loopMusic.play();
+				Assets.loopMusic.play();
 			}
 		});
 
@@ -170,13 +151,13 @@ public class GameScreen implements Screen
 		cameraRotationSpeed = 0f;
 		cameraRotationType = CameraRotationType.CLOCKWISE;
 
-		introMusic.play();
+		Assets.introMusic.play();
 	}
 
 	public void reset()
 	{
-		introMusic.stop();
-		loopMusic.stop();
+		Assets.introMusic.stop();
+		Assets.loopMusic.stop();
 		
 		wallDistanceTimer.stop();
 		cameraRotationTimer.stop();
@@ -187,11 +168,7 @@ public class GameScreen implements Screen
 		player.reset();
 	}
 
-	@Override
-	public void render(float delta) {
-
-		// Update
-
+	public void update(float delta) {
 		fpsLogger.log();
 
 		if (player.isAlive)
@@ -262,40 +239,40 @@ public class GameScreen implements Screen
 			
 			reset();
 		}
-
-		// Draw
-
+	}
+	
+	public void draw(float delta) {
 		Gdx.gl.glClearColor(0.32f, 0.5f, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		spriteBatch.setProjectionMatrix(camera.combined);
+		game.SpriteBatch.setProjectionMatrix(camera.combined);
 
-		spriteBatch.begin();
+		game.SpriteBatch.begin();
 
-		tunnel.Draw(spriteBatch);
+		tunnel.Draw(game.SpriteBatch);
 
-		player.Draw(spriteBatch);
+		player.Draw(game.SpriteBatch);
 		
-		spriteBatch.end();
+		game.SpriteBatch.end();
 
 		//player.DrawBoundingBox();
 		
-		spriteBatch.setProjectionMatrix(hudCamera.combined);
-		spriteBatch.begin();
+		game.SpriteBatch.setProjectionMatrix(hudCamera.combined);
+		game.SpriteBatch.begin();
 
 		String scoreValueString = Integer.toString((int)score);
 		String highScoreValueString = Integer.toString(highscore);
 		String deathNumberValueString = Integer.toString(deathNumber);
 		
-		font.draw(spriteBatch, scoreTextString, Config.GameWidth/2 - font.getBounds(scoreTextString).width / 2, 0);
-		font.draw(spriteBatch, scoreValueString, Config.GameWidth/2 - font.getBounds(scoreValueString).width / 2, 
-					font.getBounds(scoreTextString).height);
+		Assets.font.draw(game.SpriteBatch, scoreTextString, Config.GameWidth/2 - Assets.font.getBounds(scoreTextString).width / 2, 0);
+		Assets.font.draw(game.SpriteBatch, scoreValueString, Config.GameWidth/2 - Assets.font.getBounds(scoreValueString).width / 2, 
+				Assets.font.getBounds(scoreTextString).height);
 
-		font.draw(spriteBatch, highscoreTextString, 0, Config.GameHeight - font.getBounds(highscoreTextString).height);
-		font.draw(spriteBatch, highScoreValueString, highscoreTextBounds.width, Config.GameHeight - font.getBounds(highScoreValueString).height);
+		Assets.font.draw(game.SpriteBatch, highscoreTextString, 0, Config.GameHeight - Assets.font.getBounds(highscoreTextString).height);
+		Assets.font.draw(game.SpriteBatch, highScoreValueString, highscoreTextBounds.width, Config.GameHeight - Assets.font.getBounds(highScoreValueString).height);
 		
-		font.draw(spriteBatch, deathNumberTextString, 0, Config.GameHeight - 2 * font.getBounds(deathNumberTextString).height);
-		font.draw(spriteBatch, deathNumberValueString, deathNumberTextBounds.width, Config.GameHeight - 2 * font.getBounds(deathNumberValueString).height);
+		Assets.font.draw(game.SpriteBatch, deathNumberTextString, 0, Config.GameHeight - 2 * Assets.font.getBounds(deathNumberTextString).height);
+		Assets.font.draw(game.SpriteBatch, deathNumberValueString, deathNumberTextBounds.width, Config.GameHeight - 2 * Assets.font.getBounds(deathNumberValueString).height);
 		
 		// Debug
 		
@@ -355,7 +332,13 @@ public class GameScreen implements Screen
 		else
 			font.draw(spriteBatch, "FALSE", 0, 360);
 	 	*/
-		spriteBatch.end();
+		game.SpriteBatch.end();
+	}
+	
+	@Override
+	public void render(float delta) {
+		this.update(delta);
+		this.draw(delta);
 	}
 
 	@Override
@@ -390,8 +373,6 @@ public class GameScreen implements Screen
 
 	@Override
 	public void dispose() {
-		spriteBatch.dispose();
-		texture.dispose();
 	}
 
 }

@@ -1,7 +1,6 @@
 package com.noxalus.tunnelrush.entities;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -11,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.noxalus.tunnelrush.Assets;
 import com.noxalus.tunnelrush.Config;
 import com.noxalus.tunnelrush.screens.GameScreen;
 
@@ -18,8 +18,6 @@ public class Player implements DrawableGameEntity
 {
 	// References
 	private GameScreen gameScreen; 
-	
-	private Sprite sprite;
 
 	private Vector3 projectedPosition;
 	
@@ -34,7 +32,7 @@ public class Player implements DrawableGameEntity
 	private Rectangle boundingBox;
 	private ShapeRenderer shapeRenderer;
 	
-	private Sound deathSound;
+	private Sprite sprite;
 	
 	public Sprite getSprite()
 	{
@@ -54,14 +52,9 @@ public class Player implements DrawableGameEntity
 		
 		boundingBox = new Rectangle();
 		shapeRenderer = new ShapeRenderer();
-		
-		Texture texture = new Texture(Gdx.files.internal("data/graphics/sprites/player.png"));
-		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
-		sprite = new Sprite(texture);
+		sprite = new Sprite(Assets.playerTexture);
 		sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
-
-		deathSound = Gdx.audio.newSound(Gdx.files.internal("data/audio/sfx/explosion.wav"));
 		
 		reset();
 	}
@@ -147,7 +140,7 @@ public class Player implements DrawableGameEntity
 
 	public void Kill()
 	{
-		deathSound.play();
+		Assets.deathSound.play();
 		
 		isAlive = false;
 	}

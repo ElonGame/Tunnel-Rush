@@ -2,14 +2,12 @@ package com.noxalus.tunnelrush.entities;
 
 import java.util.ArrayList;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.noxalus.tunnelrush.Assets;
 import com.noxalus.tunnelrush.Config;
 import com.noxalus.tunnelrush.screens.GameScreen;
 
@@ -20,10 +18,6 @@ public class Wall implements DrawableGameEntity
 	private GameScreen gameScreen;
 
 	private int id;
-	public Sprite sprite;
-	private Sprite border;
-	private Sprite borderBottom;
-	private Sprite joinBorder;
 	private float velocity;
 	private ArrayList<Wall> leftWalls;
 	private ArrayList<Wall> rightWalls;
@@ -31,6 +25,11 @@ public class Wall implements DrawableGameEntity
 	private Rectangle boundingBox;
 	private boolean hasReset;
 	private int outScreenSpace;
+	
+	private Sprite sprite;
+	private Sprite border;
+	private Sprite borderBottom;
+	private Sprite joinBorder;
 
 	public Wall(GameScreen gameScreen, int id, boolean isLeftWall, ArrayList<Wall> leftWalls, ArrayList<Wall> rightWalls)
 	{
@@ -44,14 +43,11 @@ public class Wall implements DrawableGameEntity
 		this.velocity = Config.InitialWallSpeed;
 		this.hasReset = false;
 
-		Texture texture = new Texture(Gdx.files.internal("data/graphics/pictures/pixel.png"));
-		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-
 		// Test border
-		this.joinBorder = new Sprite(texture);
+		this.joinBorder = new Sprite(Assets.pixelWallJoinBorder);
 		joinBorder.setColor(Color.valueOf("FF0000"));
 
-		this.sprite = new Sprite(texture);
+		this.sprite = new Sprite(Assets.pixelWall);
 		
 		this.outScreenSpace = (Config.GameHeight - Config.GameWidth);
 
@@ -68,13 +64,13 @@ public class Wall implements DrawableGameEntity
 		sprite.setColor(Config.WallColors[0]);
 		sprite.setColor(Config.WallColorsDebug[id]);
 
-		border = new Sprite(texture);
+		border = new Sprite(Assets.pixelWalBorder);
 		border.setSize(Config.WallBorderWidth, Config.WallHeight);
 		border.setColor(Color.valueOf("000000"));
 
 		if (id == Config.MaxWallNumber + 2)
 		{
-			borderBottom = new Sprite(texture);
+			borderBottom = new Sprite(Assets.pixelWallBorderBottom);
 			borderBottom.setSize(sprite.getWidth() + Config.WallBorderWidth, Config.WallStep);
 			borderBottom.setColor(Color.valueOf("000000"));
 		}

@@ -5,6 +5,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
@@ -23,6 +24,9 @@ public class Assets {
 	public static TextureRegion rate;
 	public static TextureRegion achievement;
 	public static TextureRegion leaderboard;
+	
+	// Animations
+	public static Animation playerAnimation;
 	
 	// Fonts
 	public static BitmapFont font;
@@ -46,7 +50,7 @@ public class Assets {
 		pixelWalBorder = loadTexture("data/graphics/pictures/pixel.png");
 		pixelWallJoinBorder = loadTexture("data/graphics/pictures/pixel.png");
 		pixelWallBorderBottom = loadTexture("data/graphics/pictures/pixel.png");
-		playerTexture = loadTexture("data/graphics/sprites/player.png");
+		playerTexture = loadTexture("data/graphics/sprites/player_animation.png");
 		title = loadTexture("data/graphics/pictures/title.png");
 		buttons = loadTexture("data/graphics/pictures/buttons.png");
 		
@@ -59,6 +63,13 @@ public class Assets {
 		pixelWall.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		playerTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 
+		// Animations
+		playerAnimation = new Animation(0.2f, 
+				new TextureRegion(playerTexture, 0, 0, 64, 70), 
+				new TextureRegion(playerTexture, 64, 0, 64, 70),
+				new TextureRegion(playerTexture, 128, 0, 64, 70),
+				new TextureRegion(playerTexture, 192, 0, 64, 70));
+		
 		// Fonts
 		font = new BitmapFont(Gdx.files.internal("data/graphics/fonts/classic.fnt"),
 				Gdx.files.internal("data/graphics/fonts/classic.png"), true);

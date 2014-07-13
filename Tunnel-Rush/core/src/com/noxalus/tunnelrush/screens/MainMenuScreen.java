@@ -3,8 +3,10 @@ package com.noxalus.tunnelrush.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.noxalus.tunnelrush.Assets;
@@ -23,7 +25,7 @@ public class MainMenuScreen implements Screen
 	Rectangle rateBounds;
 	Vector3 touchPoint;
 	Sprite title;
-	
+	float counter = 0;
 	Tunnel tunnel;
 	
 	public MainMenuScreen (TunnelRush game) {
@@ -31,27 +33,27 @@ public class MainMenuScreen implements Screen
 		
 		playBounds = new Rectangle(
 				(Config.GameWidth / 2) - (Assets.play.getRegionWidth() / 2), 
-				Config.GameHeight - (Assets.play.getRegionHeight() / 2) - 2 * (Config.GameHeight / 3.2f),
+				Config.GameHeight - 3 * (Config.GameHeight / 4.f),
 				Assets.play.getRegionWidth(),
 				Assets.play.getRegionHeight());
 		
 		leaderboardBounds = new Rectangle(
-				((Config.GameWidth / 2) - (Assets.achievement.getRegionWidth() / 2)) / 2 - (Assets.leaderboard.getRegionWidth() / 2), 
-				Config.GameHeight / 6,
-				Assets.leaderboard.getRegionWidth(),
-				Assets.leaderboard.getRegionHeight());
+				((Config.GameWidth / 2) - (Assets.achievement.getRegionWidth() / 4)) / 2 - (Assets.leaderboard.getRegionWidth() / 4), 
+				Config.GameHeight / 10,
+				Assets.leaderboard.getRegionWidth() / 2,
+				Assets.leaderboard.getRegionHeight() / 2);
 		
 		achievementsBounds = new Rectangle(
-				(Config.GameWidth / 2) - (Assets.achievement.getRegionWidth() / 2), 
-				Config.GameHeight / 6,
-				Assets.achievement.getRegionWidth(),
-				Assets.achievement.getRegionHeight());
+				(Config.GameWidth / 2) - (Assets.achievement.getRegionWidth() / 4), 
+				Config.GameHeight / 10,
+				Assets.achievement.getRegionWidth() / 2,
+				Assets.achievement.getRegionHeight() / 2);
 		
 		rateBounds = new Rectangle(
-				(3 * ((Config.GameWidth / 2) - (Assets.achievement.getRegionWidth() / 2)) / 2) + (Assets.rate.getRegionWidth() / 2),
-				Config.GameHeight / 6,
-				Assets.rate.getRegionWidth(),
-				Assets.rate.getRegionHeight());
+				(3 * ((Config.GameWidth / 2) - (Assets.achievement.getRegionWidth() / 4)) / 2) + (Assets.rate.getRegionWidth() / 4),
+				Config.GameHeight / 10,
+				Assets.rate.getRegionWidth() / 2,
+				Assets.rate.getRegionHeight() / 2);
 		
 		touchPoint = new Vector3();
 		
@@ -103,18 +105,25 @@ public class MainMenuScreen implements Screen
 				Config.GameWidth / 2 - (Assets.title.getWidth() / 2), 
 				Config.GameHeight - (Assets.title.getHeight() / 2) - (Config.GameHeight / 6));
 		
-		game.SpriteBatch.draw(Assets.playerTexture, 
-				(Config.GameWidth / 2) - (320 / 2), 
+//		game.SpriteBatch.draw(Assets.playerTexture, 
+//				(Config.GameWidth / 2) - (320 / 2), 
+//				Config.GameHeight - 320 - (Config.GameHeight / 3),
+//				320, 320);
+		
+		counter += deltaTime;
+		TextureRegion keyFrame = Assets.playerAnimation.getKeyFrame(counter, true);
+		
+		game.SpriteBatch.draw(keyFrame, (Config.GameWidth / 2) - (320 / 2), 
 				Config.GameHeight - 320 - (Config.GameHeight / 3),
 				320, 320);
 		
 		game.SpriteBatch.draw(Assets.play, playBounds.x, playBounds.y, playBounds.width, playBounds.height);
 		
-		game.SpriteBatch.draw(Assets.leaderboard, leaderboardBounds.x, leaderboardBounds.y);
+		game.SpriteBatch.draw(Assets.leaderboard, leaderboardBounds.x, leaderboardBounds.y, leaderboardBounds.width, leaderboardBounds.height);
 		
-		game.SpriteBatch.draw(Assets.achievement, achievementsBounds.x, achievementsBounds.y);
+		game.SpriteBatch.draw(Assets.achievement, achievementsBounds.x, achievementsBounds.y, achievementsBounds.width, achievementsBounds.height);
 		
-		game.SpriteBatch.draw(Assets.rate, rateBounds.x, rateBounds.y);
+		game.SpriteBatch.draw(Assets.rate, rateBounds.x, rateBounds.y, achievementsBounds.width, achievementsBounds.height);
 		
 		game.SpriteBatch.end();
 	}

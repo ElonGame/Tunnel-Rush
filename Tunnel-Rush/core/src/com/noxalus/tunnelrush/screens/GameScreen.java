@@ -4,16 +4,20 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Music.OnCompletionListener;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.noxalus.tunnelrush.Assets;
 import com.noxalus.tunnelrush.Config;
+import com.noxalus.tunnelrush.GameData;
 import com.noxalus.tunnelrush.TunnelRush;
 import com.noxalus.tunnelrush.entities.Player;
 import com.noxalus.tunnelrush.entities.Tunnel;
@@ -28,38 +32,11 @@ public class GameScreen implements Screen
 	public OrthographicCamera camera;
 	private OrthographicCamera hudCamera;
 
-	public boolean cameraRotationEnabled;
-	public float cameraRotationAngle;
-	private float cameraRotationSpeed;
-	
-	public enum CameraRotationType {
-		NONE,
-		CLOCKWISE,
-		COUNTERCLOCKWISE
-	}
-	
-	public CameraRotationType cameraRotationType;
-
 	// Game logic
 	public Player player;
 	private Tunnel tunnel;
 
-	// Difficulty
-	public int difficulty;
-	
-	public enum WallDistanceType {
-		NONE,
-		INCREASE,
-		DECREASE
-	}
-
-	public float maxWallDistance;
-	public WallDistanceType wallDistanceType;
-	
-	// Scores
-	public float score;
-	private int highscore;
-	private int deathNumber;
+	GameData gameData;
 
 	// Timers
 	Timer wallDistanceTimer;
@@ -69,14 +46,15 @@ public class GameScreen implements Screen
 	Task changeWallDistanceTask;
 	Task changeCameraRotationTask;
 
-	// Text
-	TextBounds scoreTextBounds;
-	String scoreTextString;
-	TextBounds highscoreTextBounds;
-	String highscoreTextString;
-	TextBounds deathNumberTextBounds;
-	String deathNumberTextString;
-
+	// Sprites
+	Sprite blackBackground;
+	Sprite gameOverSprite;
+	Sprite scoreSprite;
+	Sprite bestSprite;
+	Sprite deathsSprite;
+	
+	float interfaceScale;
+	
 	// Debug
 	FPSLogger fpsLogger;
 
@@ -86,15 +64,12 @@ public class GameScreen implements Screen
 		
 		fpsLogger = new FPSLogger();
 		
-		maxWallDistance = Config.InitialMaxWallDistance;
-		
-		player = new Player(this);
-		tunnel = new Tunnel(this);
+		gameData = new GameData();
+		gameData.initialize();
+		player = new Player(this, gameData);
+		tunnel = new Tunnel(gameData);
+		tunnel.setPlayer(player);
 
-		highscore = Config.Settings.getInteger("highscore");
-		
-		deathNumber =  Config.Settings.getInteger("deathNumber");
-		
 		// Cameras
 		camera = new OrthographicCamera();
 		hudCamera = new OrthographicCamera();
@@ -105,35 +80,60 @@ public class GameScreen implements Screen
 		cameraRotationTimer = new Timer();
 		
 		// Tasks
-		changeWallDistanceTask = new ChangeWallDistanceTask(this);
-		changeCameraRotationTask = new ChangeCameraRotationTask(this);
+		changeWallDistanceTask = new ChangeWallDistanceTask(gameData);
+		changeCameraRotationTask = new ChangeCameraRotationTask(gameData);
 		
-		// Text
-		scoreTextString = "Score";
-		scoreTextBounds = Assets.font.getBounds(scoreTextString);
-		
-		highscoreTextString = "Best: ";
-		highscoreTextBounds = Assets.font.getBounds(highscoreTextString);
-		
-		deathNumberTextString = "Deaths: ";
-		deathNumberTextBounds = Assets.font.getBounds(deathNumberTextString);
-
 		Assets.introMusic.setOnCompletionListener(new OnCompletionListener() {
 			public void onCompletion(Music music) {
-				cameraRotationEnabled = true;
+				gameData.cameraRotationEnabled = true;
 				Assets.loopMusic.play();
 			}
 		});
 
+		blackBackground = new Sprite(Assets.pixelBackground);
+		blackBackground.setSize(Config.GameWidth, Config.GameHeight);
+		blackBackground.setColor(0, 0, 0, 0.75f);
+		
+		gameOverSprite = new Sprite(Assets.gameOver);
+		gameOverSprite.setPosition(
+				Config.GameWidth / 2 - (Assets.gameOver.getWidth() / 2), 
+				(Config.GameHeight / 20));
+		gameOverSprite.flip(false, true);
+		
+		interfaceScale = 1.f;
+		
+		scoreSprite = new Sprite(Assets.score);
+		scoreSprite.setPosition(
+				Config.GameWidth - (Assets.score.getWidth() * interfaceScale) - Config.GameWidth / 15, 
+				Config.GameHeight / 3);
+		scoreSprite.flip(false, true);
+		scoreSprite.setScale(interfaceScale);
+		scoreSprite.setColor(Color.GRAY);
+		
+		float lag = Config.GameWidth - (Config.GameWidth - (scoreSprite.getX() + scoreSprite.getWidth()));
+		
+		bestSprite = new Sprite(Assets.best);
+		bestSprite.setPosition(
+				lag - (Assets.best.getWidth() * interfaceScale), 
+				Config.GameHeight / 3 + (3 * (Assets.score.getHeight() * interfaceScale)));
+		bestSprite.flip(false, true);
+		bestSprite.setScale(interfaceScale);
+		bestSprite.setColor(Color.GRAY);
+		
+		deathsSprite = new Sprite(Assets.deaths);
+		deathsSprite.setPosition(
+				lag - (Assets.deaths.getWidth() * interfaceScale), 
+				Config.GameHeight / 3 + (6 * (Assets.score.getHeight() * interfaceScale)));
+		deathsSprite.flip(false, true);
+		deathsSprite.setScale(interfaceScale);
+		deathsSprite.setColor(Color.GRAY);
+		
 		initialize();
 	}
 
 	public void initialize()
 	{
-		difficulty = 0;
-		score = 0;
-		maxWallDistance = Config.InitialMaxWallDistance;
-		wallDistanceType = WallDistanceType.NONE;
+		Assets.digitFont.setColor(Color.BLACK);
 		
 		wallDistanceTimer.clear();
 		cameraRotationTimer.clear();
@@ -145,13 +145,10 @@ public class GameScreen implements Screen
 		cameraRotationTimer.start();
 		
 		camera.setToOrtho(true, Config.GameWidth, Config.GameHeight);
-		
-		cameraRotationAngle = 0f;
-		cameraRotationEnabled = false;
-		cameraRotationSpeed = 0f;
-		cameraRotationType = CameraRotationType.CLOCKWISE;
 
 		Assets.introMusic.play();
+		
+		gameData.initialize();
 	}
 
 	public void reset()
@@ -177,81 +174,95 @@ public class GameScreen implements Screen
 
 			tunnel.Update(delta);
 
-			if (!Config.DisableRotation && cameraRotationEnabled)
+			if (!Config.DisableRotation && gameData.cameraRotationEnabled)
 			{
-				switch(cameraRotationType)
+				switch(gameData.cameraRotationType)
 				{
 				case NONE:
 					break;
 				case CLOCKWISE:
-					if (cameraRotationSpeed < 0)
-						cameraRotationSpeed += 50f * delta;
+					if (gameData.cameraRotationSpeed < 0)
+						gameData.cameraRotationSpeed += 50f * delta;
 
-					cameraRotationSpeed += 5f * delta;
+					gameData.cameraRotationSpeed += 5f * delta;
 					break;
 				case COUNTERCLOCKWISE:
-					if (cameraRotationSpeed > 0)
-						cameraRotationSpeed -= 50f * delta;
+					if (gameData.cameraRotationSpeed > 0)
+						gameData.cameraRotationSpeed -= 50f * delta;
 					
-					cameraRotationSpeed -= 5f * delta;
+					gameData.cameraRotationSpeed -= 5f * delta;
 					break;
 				}
 
-				cameraRotationAngle += cameraRotationSpeed * delta;
-				camera.rotate(cameraRotationSpeed * delta);
+				gameData.cameraRotationAngle += gameData.cameraRotationSpeed * delta;
+				camera.rotate(gameData.cameraRotationSpeed * delta);
 			}
 
 			camera.update();
 			
 			// Increase difficulty
-			if (score / Config.ScoreToIncreaseDifficulty > (difficulty + 1))
-				difficulty++;
+			if (gameData.score / Config.ScoreToIncreaseDifficulty > (gameData.difficulty + 1))
+				gameData.difficulty++;
 
-			switch(wallDistanceType)
+			switch(gameData.wallDistanceType)
 			{
 			case NONE:
 				break;
 			case INCREASE:
-				maxWallDistance += Config.WallDistanceChangeStep * delta;
+				gameData.maxWallDistance += Config.WallDistanceChangeStep * delta;
 				break;
 			case DECREASE:
-				maxWallDistance -= Config.WallDistanceChangeStep * delta;
+				gameData.maxWallDistance -= Config.WallDistanceChangeStep * delta;
 				break;
 			}
 			
-			maxWallDistance = MathUtils.clamp(maxWallDistance, Config.MinWallDistance, Config.InitialMaxWallDistance * 1.5f);
+			gameData.maxWallDistance = MathUtils.clamp(gameData.maxWallDistance, Config.MinWallDistance, Config.InitialMaxWallDistance * 1.5f);
 		}
 		else
 		{
-			if (highscore < score)
+			if (!gameData.gameOver)
 			{
-				highscore = (int)score;
+				if (gameData.highscore < gameData.score)
+				{
+					gameData.highscore = (int)gameData.score;
+					
+					Config.Settings.putInteger("highscore", gameData.highscore);
+				}
+	
+				gameData.deathNumber++;
 				
-				Config.Settings.putInteger("highscore", highscore);
+				Config.Settings.putInteger("deathNumber", gameData.deathNumber);
 				
+				Config.Settings.flush();
 				
-			}
+				gameData.gameOver = true;
+				
 
-			deathNumber++;
-			Config.Settings.putInteger("deathNumber", deathNumber);
-			
-			Config.Settings.flush();
-			
-			reset();
+				Assets.introMusic.stop();
+				Assets.loopMusic.stop();
+			}
+			else
+			{
+				if (Gdx.input.justTouched())
+				{
+					reset();
+				}
+			}
 		}
 	}
 	
 	public void draw(float delta) {
 		Gdx.gl.glClearColor(0.32f, 0.5f, 1, 1);
+		//Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		game.SpriteBatch.setProjectionMatrix(camera.combined);
 
 		game.SpriteBatch.begin();
 
-		tunnel.Draw(game.SpriteBatch);
-
-		player.Draw(game.SpriteBatch);
+		player.Draw(game.SpriteBatch, delta);
+		
+		tunnel.Draw(game.SpriteBatch, delta);
 		
 		game.SpriteBatch.end();
 
@@ -260,19 +271,14 @@ public class GameScreen implements Screen
 		game.SpriteBatch.setProjectionMatrix(hudCamera.combined);
 		game.SpriteBatch.begin();
 
-		String scoreValueString = Integer.toString((int)score);
-		String highScoreValueString = Integer.toString(highscore);
-		String deathNumberValueString = Integer.toString(deathNumber);
+		String scoreValueString = Integer.toString((int)gameData.score);
+		String highScoreValueString = Integer.toString(gameData.highscore);
+		String deathNumberValueString = Integer.toString(gameData.deathNumber);
 		
-		Assets.font.draw(game.SpriteBatch, scoreTextString, Config.GameWidth/2 - Assets.font.getBounds(scoreTextString).width / 2, 0);
-		Assets.font.draw(game.SpriteBatch, scoreValueString, Config.GameWidth/2 - Assets.font.getBounds(scoreValueString).width / 2, 
-				Assets.font.getBounds(scoreTextString).height);
-
-		Assets.font.draw(game.SpriteBatch, highscoreTextString, 0, Config.GameHeight - Assets.font.getBounds(highscoreTextString).height);
-		Assets.font.draw(game.SpriteBatch, highScoreValueString, highscoreTextBounds.width, Config.GameHeight - Assets.font.getBounds(highScoreValueString).height);
-		
-		Assets.font.draw(game.SpriteBatch, deathNumberTextString, 0, Config.GameHeight - 2 * Assets.font.getBounds(deathNumberTextString).height);
-		Assets.font.draw(game.SpriteBatch, deathNumberValueString, deathNumberTextBounds.width, Config.GameHeight - 2 * Assets.font.getBounds(deathNumberValueString).height);
+//		Assets.font.draw(game.SpriteBatch, scoreTextString, Config.GameWidth/2 - Assets.font.getBounds(scoreTextString).width / 2, 0);
+		Assets.digitFont.draw(game.SpriteBatch, scoreValueString, 
+				Config.GameWidth/2 - Assets.digitFont.getBounds(scoreValueString).width / 2, 
+				(Config.GameHeight / 10));
 		
 		// Debug
 		
@@ -332,6 +338,34 @@ public class GameScreen implements Screen
 		else
 			font.draw(spriteBatch, "FALSE", 0, 360);
 	 	*/
+		
+		if (gameData.gameOver)
+		{
+			blackBackground.draw(game.SpriteBatch);
+		
+			gameOverSprite.draw(game.SpriteBatch);
+			
+			scoreSprite.draw(game.SpriteBatch);
+			
+			Assets.digitFont.setColor(Color.WHITE);
+			Assets.digitFont.setScale(0.5f);
+			
+			Assets.digitFont.draw(game.SpriteBatch, scoreValueString, 
+					scoreSprite.getX() + scoreSprite.getWidth() - (Assets.digitFont.getBounds(scoreValueString).width), 
+					scoreSprite.getY() + 1.5f * scoreSprite.getHeight());
+			
+			bestSprite.draw(game.SpriteBatch);
+			Assets.digitFont.draw(game.SpriteBatch, highScoreValueString, 
+					bestSprite.getX() + bestSprite.getWidth() - (Assets.digitFont.getBounds(highScoreValueString).width), 
+					bestSprite.getY() + 1.5f * bestSprite.getHeight());
+			
+			deathsSprite.draw(game.SpriteBatch);
+			Assets.digitFont.setScale(0.5f);
+			Assets.digitFont.draw(game.SpriteBatch, deathNumberValueString, 
+					deathsSprite.getX() + deathsSprite.getWidth() - (Assets.digitFont.getBounds(deathNumberValueString).width), 
+					deathsSprite.getY() + 1.5f * deathsSprite.getHeight());
+		}
+		
 		game.SpriteBatch.end();
 	}
 	

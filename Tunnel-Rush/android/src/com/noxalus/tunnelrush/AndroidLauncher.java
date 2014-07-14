@@ -1,4 +1,4 @@
-package com.noxalus.tunnelrush.android;
+package com.noxalus.tunnelrush;
 
 import android.content.Intent;
 import android.os.Bundle;

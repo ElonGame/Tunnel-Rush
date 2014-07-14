@@ -4,5 +4,5 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public interface DrawableGameEntity {
 	public void Update(float delta);
-	public void Draw(SpriteBatch spriteBatch);
+	public void Draw(SpriteBatch spriteBatch, float delta);
 }

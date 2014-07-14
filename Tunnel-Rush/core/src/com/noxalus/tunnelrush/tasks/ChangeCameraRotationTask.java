@@ -2,21 +2,21 @@ package com.noxalus.tunnelrush.tasks;
 
 import com.badlogic.gdx.utils.Timer.Task;
 import com.noxalus.tunnelrush.Config;
-import com.noxalus.tunnelrush.screens.GameScreen;
-import com.noxalus.tunnelrush.screens.GameScreen.CameraRotationType;
+import com.noxalus.tunnelrush.GameData;
+import com.noxalus.tunnelrush.GameData.CameraRotationType;
 
 public class ChangeCameraRotationTask extends Task
 {
-	private GameScreen gameScreen;
+	private GameData gameData;
 	
-	public ChangeCameraRotationTask(GameScreen gameScreen)
+	public ChangeCameraRotationTask(GameData gameData)
 	{
-		this.gameScreen = gameScreen;
+		this.gameData = gameData;
 	}
 	
 	@Override
 	public void run() {
-		if (!gameScreen.cameraRotationEnabled || Config.random.nextFloat() > 0.5f)
+		if (!gameData.cameraRotationEnabled || Config.random.nextFloat() > 0.5f)
 			return;
 					
 		float randomValue = Config.random.nextFloat();
@@ -36,6 +36,6 @@ public class ChangeCameraRotationTask extends Task
 		}
 		
 		// Change rotation
-		gameScreen.cameraRotationType = newCameraRotationType;
+		gameData.cameraRotationType = newCameraRotationType;
 	}	
 }

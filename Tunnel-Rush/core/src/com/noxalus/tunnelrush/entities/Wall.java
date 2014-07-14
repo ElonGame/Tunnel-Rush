@@ -9,14 +9,14 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.noxalus.tunnelrush.Assets;
 import com.noxalus.tunnelrush.Config;
+import com.noxalus.tunnelrush.GameData;
 import com.noxalus.tunnelrush.screens.GameScreen;
 
 public class Wall implements DrawableGameEntity
 {
-
 	// References
-	private GameScreen gameScreen;
-
+	private GameData gameData;
+	
 	private int id;
 	private float velocity;
 	private ArrayList<Wall> leftWalls;
@@ -31,9 +31,11 @@ public class Wall implements DrawableGameEntity
 	private Sprite borderBottom;
 	private Sprite joinBorder;
 
-	public Wall(GameScreen gameScreen, int id, boolean isLeftWall, ArrayList<Wall> leftWalls, ArrayList<Wall> rightWalls)
+	public Wall(int id, boolean isLeftWall, ArrayList<Wall> leftWalls, ArrayList<Wall> rightWalls, GameData gameData)
 	{
-		this.gameScreen = gameScreen;
+		// References
+		this.gameData = gameData;
+		
 		this.id = id;
 		this.leftWalls = leftWalls;
 		this.rightWalls = rightWalls;
@@ -56,13 +58,17 @@ public class Wall implements DrawableGameEntity
 		sprite.setSize(width + outScreenSpace, Config.WallHeight);
 
 		if (isLeftWall)
-			sprite.setPosition(-outScreenSpace, (id - 3) * Config.WallHeight - (2 * Config.GameHeight));
+			sprite.setPosition(-outScreenSpace, (id - 3) * Config.WallHeight);
 		else
-			sprite.setPosition(Config.GameWidth - (sprite.getWidth() + Config.WallStep) + outScreenSpace, (id - 3) * Config.WallHeight
-					- (2 * Config.GameHeight));
+			sprite.setPosition(Config.GameWidth - (sprite.getWidth() + Config.WallStep) + outScreenSpace, (id - 3) * Config.WallHeight);
 
+		if (!gameData.isDemo)
+			sprite.setY(sprite.getY() - (2 * Config.GameHeight));
+		
 		sprite.setColor(Config.WallColors[0]);
-		sprite.setColor(Config.WallColorsDebug[id]);
+		
+		if (gameData.isDemo)
+			sprite.setColor(Config.WallColorsDebug[(int) Math.round(Math.random() * (Config.WallColorsDebug.length - 1))]);
 
 		border = new Sprite(Assets.pixelWalBorder);
 		border.setSize(Config.WallBorderWidth, Config.WallHeight);
@@ -80,7 +86,7 @@ public class Wall implements DrawableGameEntity
 	public void Update(float delta)
 	{
 		// Wall speed according to difficulty
-		if (gameScreen.difficulty < Config.MaxWallSpeedIntervals.length && velocity < Config.MaxWallSpeedIntervals[gameScreen.difficulty])
+		if (gameData.difficulty < Config.MaxWallSpeedIntervals.length && velocity < Config.MaxWallSpeedIntervals[gameData.difficulty])
 		{
 			velocity += Config.WallSpeedStep * delta;
 		}
@@ -92,7 +98,8 @@ public class Wall implements DrawableGameEntity
 		{
 			hasReset = true;
 
-			//sprite.setColor(Config.WallColors[gameScreen.difficulty % (Config.WallColors.length - 1)]);
+			if (!gameData.isDemo)
+				sprite.setColor(Config.WallColors[gameData.difficulty % (Config.WallColors.length - 1)]);
 
 			sprite.setY(sprite.getY() - Config.GameHeight - (Config.WallHeight * 3));
 
@@ -103,7 +110,8 @@ public class Wall implements DrawableGameEntity
 				sprite.setX(Config.GameWidth - (sprite.getWidth() + Config.WallStep) + outScreenSpace);
 			}
 
-			gameScreen.score++;
+			if (!gameData.isDemo)
+				gameData.score++;
 		}
 
 		if (isLeftWall)
@@ -127,11 +135,12 @@ public class Wall implements DrawableGameEntity
 						sprite.getY() + sprite.getHeight());
 		}
 
-		UpdateBoundingBox();
+		if (!gameData.isDemo)
+			UpdateBoundingBox();
 	}
 
 	@Override
-	public void Draw(SpriteBatch spriteBatch)
+	public void Draw(SpriteBatch spriteBatch, float delta)
 	{
 		sprite.draw(spriteBatch);
 		border.draw(spriteBatch);
@@ -154,7 +163,7 @@ public class Wall implements DrawableGameEntity
 		// -1 => tunnel go to the left, 1 => tunnel go to the right
 		int factor = (Config.random.nextFloat() > 0.5f) ? 1 : -1;
 
-		float wallDistance = gameScreen.maxWallDistance;
+		float wallDistance = gameData.maxWallDistance;
 
 		if (hasReset)
 		{

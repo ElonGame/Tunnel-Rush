@@ -15,8 +15,13 @@ public class Assets {
 	public static Texture pixelWalBorder;
 	public static Texture pixelWallJoinBorder;
 	public static Texture pixelWallBorderBottom;
+	public static Texture pixelBackground;
 	public static Texture playerTexture;
 	public static Texture title;
+	public static Texture gameOver;
+	public static Texture score;
+	public static Texture best;
+	public static Texture deaths;
 	public static Texture buttons;
 	
 	// Texture regions
@@ -30,6 +35,7 @@ public class Assets {
 	
 	// Fonts
 	public static BitmapFont font;
+	public static BitmapFont digitFont;
 	
 	// Musics
 	public static Music menu;
@@ -50,15 +56,21 @@ public class Assets {
 		pixelWalBorder = loadTexture("data/graphics/pictures/pixel.png");
 		pixelWallJoinBorder = loadTexture("data/graphics/pictures/pixel.png");
 		pixelWallBorderBottom = loadTexture("data/graphics/pictures/pixel.png");
+		pixelBackground = loadTexture("data/graphics/pictures/pixel.png");
 		playerTexture = loadTexture("data/graphics/sprites/player_animation.png");
 		title = loadTexture("data/graphics/pictures/title.png");
+		gameOver = loadTexture("data/graphics/pictures/gameover.png");
+		score = loadTexture("data/graphics/pictures/score.png");
+		best = loadTexture("data/graphics/pictures/best.png");
+		deaths = loadTexture("data/graphics/pictures/deaths.png");
 		buttons = loadTexture("data/graphics/pictures/buttons.png");
 		
 		// Texture regions
-		play = new TextureRegion(buttons, 0, 0, 320, 184);
-		rate = new TextureRegion(buttons, 320, 0, 320, 184);
-		achievement = new TextureRegion(buttons, 640, 0, 320, 184);
-		leaderboard = new TextureRegion(buttons, 960, 0, 320, 184);
+		int buttonWidth = buttons.getWidth() / 4;
+		play = new TextureRegion(buttons, 0, 0, buttonWidth, buttons.getHeight());
+		rate = new TextureRegion(buttons, buttonWidth, 0, buttonWidth, buttons.getHeight());
+		achievement = new TextureRegion(buttons, buttonWidth * 2, 0, buttonWidth, buttons.getHeight());
+		leaderboard = new TextureRegion(buttons, buttonWidth * 3, 0, buttonWidth, buttons.getHeight());
 		
 		pixelWall.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		playerTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -74,6 +86,10 @@ public class Assets {
 		font = new BitmapFont(Gdx.files.internal("data/graphics/fonts/classic.fnt"),
 				Gdx.files.internal("data/graphics/fonts/classic.png"), true);
 		
+		digitFont = new BitmapFont(Gdx.files.internal("data/graphics/fonts/digits.fnt"),
+				Gdx.files.internal("data/graphics/fonts/digits_0.tga"), true);
+		//Assets.digitFont.scale(5);
+		
 		// Musics
 		menu = Gdx.audio.newMusic(Gdx.files.internal("data/audio/bgm/menu.mp3"));
 		introMusic = Gdx.audio.newMusic(Gdx.files.internal("data/audio/bgm/intro.mp3"));
@@ -85,9 +101,5 @@ public class Assets {
 		// Sounds
 		deathSound = Gdx.audio.newSound(Gdx.files.internal("data/audio/sfx/explosion.wav"));
 		selectSound = Gdx.audio.newSound(Gdx.files.internal("data/audio/sfx/select.wav"));
-	}
-	
-	public static void dispose() {
-		
 	}
 }

@@ -33,7 +33,6 @@ public class TunnelRush extends Game {
 	public void dispose () {
 		super.dispose();
 		SpriteBatch.dispose();
-		Assets.dispose();
 		getScreen().dispose();
 	}
 }

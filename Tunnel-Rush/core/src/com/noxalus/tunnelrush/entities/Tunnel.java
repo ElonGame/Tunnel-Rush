@@ -4,26 +4,34 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.noxalus.tunnelrush.Config;
-import com.noxalus.tunnelrush.screens.GameScreen;
+import com.noxalus.tunnelrush.GameData;
 
 public class Tunnel implements DrawableGameEntity {
 	// References
-	private GameScreen gameScreen;
+	private Player player;
+	private GameData gameData;
 	
 	private int realWallNumber;
 	private ArrayList<Wall> leftWalls;
 	private ArrayList<Wall> rightWalls;
 	
-	public Tunnel(GameScreen gameScreen)
+	public Tunnel(GameData gameData)
 	{
-		this.gameScreen = gameScreen;
+		this.gameData = gameData;
 		
 		this.realWallNumber = Config.MaxWallNumber + 2;
 		
 		leftWalls = new ArrayList<Wall>();
 		rightWalls = new ArrayList<Wall>();
 		
+		player = null;
+		
 		reset();
+	}
+	
+	public void setPlayer(Player player) 
+	{
+		this.player = player;
 	}
 	
 	public void reset()
@@ -32,8 +40,8 @@ public class Tunnel implements DrawableGameEntity {
 		rightWalls.clear();
 		
 		for (int i = 0; i < realWallNumber + 1; i++) {
-			leftWalls.add(new Wall(gameScreen, i, true, leftWalls, rightWalls));
-			rightWalls.add(new Wall(gameScreen, i, false, leftWalls, rightWalls));
+			leftWalls.add(new Wall(i, true, leftWalls, rightWalls, gameData));
+			rightWalls.add(new Wall(i, false, leftWalls, rightWalls, gameData));
 		}
 	}
 	
@@ -44,17 +52,20 @@ public class Tunnel implements DrawableGameEntity {
 			rightWalls.get(i).Update(delta);
 			
 			// Intersects ?
-			if (leftWalls.get(i).Intersects(gameScreen.player.getBoundingBox()) ||
-				rightWalls.get(i).Intersects(gameScreen.player.getBoundingBox()))
-				gameScreen.player.Kill();
+			if (player != null && player.isAlive)
+			{
+				if (leftWalls.get(i).Intersects(player.getBoundingBox()) ||
+					rightWalls.get(i).Intersects(player.getBoundingBox()))
+					player.Kill();
+			}
 		}
 	}
 
 	@Override
-	public void Draw(SpriteBatch spriteBatch) {
+	public void Draw(SpriteBatch spriteBatch, float delta) {
 		for (int i = realWallNumber; i >= 0; i--) {
-			leftWalls.get(i).Draw(spriteBatch);
-			rightWalls.get(i).Draw(spriteBatch);
+			leftWalls.get(i).Draw(spriteBatch, delta);
+			rightWalls.get(i).Draw(spriteBatch, delta);
 		}
 	}
 

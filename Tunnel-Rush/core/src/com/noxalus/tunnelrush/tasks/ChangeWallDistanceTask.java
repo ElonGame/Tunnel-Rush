@@ -2,22 +2,22 @@ package com.noxalus.tunnelrush.tasks;
 
 import com.badlogic.gdx.utils.Timer.Task;
 import com.noxalus.tunnelrush.Config;
-import com.noxalus.tunnelrush.screens.GameScreen;
-import com.noxalus.tunnelrush.screens.GameScreen.WallDistanceType;
+import com.noxalus.tunnelrush.GameData;
+import com.noxalus.tunnelrush.GameData.WallDistanceType;
 
 public class ChangeWallDistanceTask extends Task
 {
-	private GameScreen gameScreen;
+	private GameData gameData;
 	
-	public ChangeWallDistanceTask(GameScreen gameScreen)
+	public ChangeWallDistanceTask(GameData gameData)
 	{
-		this.gameScreen = gameScreen;
+		this.gameData = gameData;
 	}
 	
 	@Override
 	public void run() {
 		
-		if (gameScreen.score <= 0 || Config.random.nextFloat() > 0.5f)
+		if (gameData.score <= 0 || Config.random.nextFloat() > 0.5f)
 			return;
 					
 		float randomValue = Config.random.nextFloat();
@@ -37,6 +37,6 @@ public class ChangeWallDistanceTask extends Task
 		}
 		
 		// Change wall distance type
-		gameScreen.wallDistanceType = newWallDistanceType;
+		gameData.wallDistanceType = newWallDistanceType;
 	}
 }

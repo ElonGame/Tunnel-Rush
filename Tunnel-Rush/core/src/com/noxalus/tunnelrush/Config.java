@@ -60,19 +60,18 @@ public class Config {
 	
 	public static final Color[] WallColorsDebug = new Color[]
 			{
-		Color.valueOf("ff0000"),
-		Color.valueOf("00ff00"),
-		Color.valueOf("0000ff"),
-		Color.valueOf("00FFFF"),
+		Color.valueOf("FF0000"),
+		Color.valueOf("FD3F01"),
+		Color.valueOf("F8CF01"),
+		Color.valueOf("FAF118"),
 		Color.valueOf("FF00FF"),
-		Color.valueOf("FFFF00"),
-		Color.valueOf("000000"),
-		Color.valueOf("808080"),
+		Color.valueOf("79A005"),
+		Color.valueOf("6ACCE5"),
 		Color.valueOf("d083fa"),
 		Color.valueOf("800000"),
 		Color.valueOf("FF8080"),
 		Color.valueOf("FF8000"),
-		Color.valueOf("FFFFFF"),
+		Color.valueOf("0C499C"),
 			};
 
 	public static Preferences Settings = Gdx.app.getPreferences("settings");

@@ -1,23 +1,33 @@
 package com.noxalus.tunnelrush.entities;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.ParticleEffectPool.PooledEffect;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.noxalus.tunnelrush.Assets;
 import com.noxalus.tunnelrush.Config;
+import com.noxalus.tunnelrush.GameData;
 import com.noxalus.tunnelrush.screens.GameScreen;
 
 public class Player implements DrawableGameEntity
 {
 	// References
 	private GameScreen gameScreen; 
+	private GameData gameData;
 
 	private Vector3 projectedPosition;
 	
@@ -33,6 +43,14 @@ public class Player implements DrawableGameEntity
 	private ShapeRenderer shapeRenderer;
 	
 	private Sprite sprite;
+	private float animationState;
+	
+	// Particles
+	ParticleEffectPool jetEffectPool;
+	Array<PooledEffect> effects = new Array<PooledEffect>();
+	
+
+	private FrameBuffer fbo;
 	
 	public Sprite getSprite()
 	{
@@ -44,17 +62,25 @@ public class Player implements DrawableGameEntity
 		return boundingBox;
 	}
 	
-	public Player(GameScreen gameScreen)
+	public Player(GameScreen gameScreen, GameData gameData)
 	{
+		fbo = new FrameBuffer(Format.RGB888, Config.GameWidth, Config.GameWidth, false);
+
 		this.gameScreen = gameScreen;
+		this.gameData = gameData;
 		
 		projectedPosition = new Vector3();
 		
 		boundingBox = new Rectangle();
 		shapeRenderer = new ShapeRenderer();
-
-		sprite = new Sprite(Assets.playerTexture);
+		
+		sprite = new Sprite(Assets.playerAnimation.getKeyFrame(0, true));
+		sprite.flip(false, true);
 		sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
+		
+		ParticleEffect jetEffect = new ParticleEffect();
+		jetEffect.load(Gdx.files.internal("data/graphics/particles/jet-engine"), Gdx.files.internal("data/graphics/particles"));
+		jetEffectPool = new ParticleEffectPool(jetEffect, 1, 2);
 		
 		reset();
 	}
@@ -71,11 +97,18 @@ public class Player implements DrawableGameEntity
 		touchMoveDelta = new Vector3();
 
 		sprite.setPosition(Config.GameWidth/2 - sprite.getWidth()/2, Config.GameHeight - Config.GameHeight/6 - sprite.getHeight()/2);
+		
+		// Create effect:
+		PooledEffect effect = jetEffectPool.obtain();
+		effect.setPosition(sprite.getX() + (sprite.getWidth() / 2), sprite.getY() + (sprite.getHeight() / 1.5f));
+		effects.add(effect);
 	}
 
 	@Override
 	public void Update(float delta)
 	{	
+		animationState += delta;
+		
 		if(Gdx.input.isTouched()) 
 		{
 			isTouchingScreen = true;
@@ -93,11 +126,11 @@ public class Player implements DrawableGameEntity
 							   	0);
 			
 			sprite.setPosition(initialSpritePosition.x + 
-							   (touchMoveDelta.x * (float)Math.cos(Math.toRadians(gameScreen.cameraRotationAngle))) + 
-							   (touchMoveDelta.y * -(float)Math.sin(Math.toRadians(gameScreen.cameraRotationAngle))),
+							   (touchMoveDelta.x * (float)Math.cos(Math.toRadians(gameData.cameraRotationAngle))) + 
+							   (touchMoveDelta.y * -(float)Math.sin(Math.toRadians(gameData.cameraRotationAngle))),
 							   initialSpritePosition.y + 
-							   (touchMoveDelta.x * (float)Math.sin(Math.toRadians(gameScreen.cameraRotationAngle))) + 
-							   (touchMoveDelta.y * (float)Math.cos(Math.toRadians(gameScreen.cameraRotationAngle))));
+							   (touchMoveDelta.x * (float)Math.sin(Math.toRadians(gameData.cameraRotationAngle))) + 
+							   (touchMoveDelta.y * (float)Math.cos(Math.toRadians(gameData.cameraRotationAngle))));
 		}
 		else
 		{
@@ -123,9 +156,46 @@ public class Player implements DrawableGameEntity
 	}
 
 	@Override
-	public void Draw(SpriteBatch spriteBatch)
+	public void Draw(SpriteBatch spriteBatch, float delta)
 	{
-		this.sprite.draw(spriteBatch);
+		// Particles
+		// Update and draw effects:
+		if (isAlive)
+		{
+	        fbo.begin();
+	        
+//	        fb.enableBlending();
+	        Gdx.gl.glBlendFuncSeparate(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+	        Gdx.gl.glClearColor(1, 0, 1, 0);
+	        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+	        
+			for (int i = effects.size - 1; i >= 0; i--) {
+			    PooledEffect effect = effects.get(i);
+			    effect.setPosition(sprite.getX() + (sprite.getWidth() / 2), sprite.getY() + (sprite.getHeight() / 1.5f));
+			    effect.draw(spriteBatch, delta);
+			    if (effect.isComplete()) {
+			        effect.free();
+			        effects.removeIndex(i);
+			    }
+			}
+			
+			fbo.end();
+		}
+		else
+		{
+			// Reset all effects:
+			for (int i = effects.size - 1; i >= 0; i--)
+			    effects.get(i).free();
+			effects.clear();
+		}
+		
+		sprite.setRegion(Assets.playerAnimation.getKeyFrame(animationState, true));
+		sprite.flip(false, true);
+//		spriteBatch.draw(Assets.playerAnimation.getKeyFrame(animationState, true),
+//				sprite.getX(), sprite.getY() - 25, sprite.getOriginX(), sprite.getOriginY(), 
+//				sprite.getWidth(), sprite.getHeight(), sprite.getScaleX(), sprite.getScaleY(), sprite.getRotation());
+		sprite.draw(spriteBatch);
 	}
 	
 	public void DrawBoundingBox()
@@ -141,7 +211,6 @@ public class Player implements DrawableGameEntity
 	public void Kill()
 	{
 		Assets.deathSound.play();
-		
 		isAlive = false;
 	}
 	

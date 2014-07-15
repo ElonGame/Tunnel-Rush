@@ -105,8 +105,7 @@ public class MainMenuScreen implements Screen
 		
 		pulseTimer = new Timer();
 		pulseTimer.scheduleTask(pulseTask, 0, 0.1f);
-		pulseTimer.start();
-	
+			
 		// Tunnel
 		tunnel = new Tunnel(new GameData());
 	}
@@ -209,6 +208,7 @@ public class MainMenuScreen implements Screen
 
 	@Override
 	public void show() {
+		pulseTimer.start();
 	}
 
 	@Override
@@ -226,6 +226,7 @@ public class MainMenuScreen implements Screen
 	@Override
 	public void resume() {
 		// TODO Auto-generated method stub
+		pulseTimer.start();
 		
 	}
 

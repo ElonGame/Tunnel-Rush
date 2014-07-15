@@ -58,7 +58,7 @@ public class GameScreen implements Screen
 	// Debug
 	FPSLogger fpsLogger;
 
-	public GameScreen(TunnelRush game)
+	public GameScreen(final TunnelRush game)
 	{
 		this.game = game;
 		
@@ -85,6 +85,7 @@ public class GameScreen implements Screen
 		
 		Assets.introMusic.setOnCompletionListener(new OnCompletionListener() {
 			public void onCompletion(Music music) {
+				game.actionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQAQ");
 				gameData.cameraRotationEnabled = true;
 				Assets.loopMusic.play();
 			}
@@ -222,6 +223,19 @@ public class GameScreen implements Screen
 		{
 			if (!gameData.gameOver)
 			{
+				// Submit the score with the GPGS
+				game.actionResolver.submitScoreGPGS(gameData.score);
+				
+				// Achivements unlocked ?
+				if (gameData.score >= 1000)
+					game.actionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQAg");
+				else if (gameData.score >= 10000)
+					game.actionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQAw");
+				else if (gameData.score >= 50000)
+					game.actionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQBA");
+				else if (gameData.score >= 100000)
+					game.actionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQBQ");
+				
 				if (gameData.highscore < gameData.score)
 				{
 					gameData.highscore = (int)gameData.score;
@@ -230,6 +244,9 @@ public class GameScreen implements Screen
 				}
 	
 				gameData.deathNumber++;
+				
+//				if (gameData.deathNumber >= 0)
+//					game.actionResolver.unlockAchievementGPGS()
 				
 				Config.Settings.putInteger("deathNumber", gameData.deathNumber);
 				

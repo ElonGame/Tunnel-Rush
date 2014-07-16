@@ -3,11 +3,16 @@ package com.noxalus.tunnelrush;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.noxalus.tunnelrush.gameservices.ActionResolver;
+import com.noxalus.tunnelrush.screens.GameScreen;
 import com.noxalus.tunnelrush.screens.MainMenuScreen;
 
 public class TunnelRush extends Game {
 	public ActionResolver actionResolver;
 	public SpriteBatch SpriteBatch;
+	
+	// Screens
+	public GameScreen gameScreen;
+	public MainMenuScreen mainMenuScreen;
 	
 	public TunnelRush(ActionResolver actionResolver) {
 		this.actionResolver = actionResolver;
@@ -18,7 +23,10 @@ public class TunnelRush extends Game {
 		SpriteBatch = new SpriteBatch();
 		Assets.load();
 		
-		setScreen(new MainMenuScreen(this));
+		gameScreen = new GameScreen(this);
+		mainMenuScreen = new MainMenuScreen(this);
+		
+		setScreen(mainMenuScreen);
 	}
 	
 	@Override

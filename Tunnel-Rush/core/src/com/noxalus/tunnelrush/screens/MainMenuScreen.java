@@ -87,8 +87,6 @@ public class MainMenuScreen implements Screen
 		touchPoint = new Vector3();
 		
 		title = new Sprite(Assets.title);
-		
-		Assets.menu.play();
 
 		ParticleEffect bombEffect = new ParticleEffect();
 		bombEffect.load(Gdx.files.internal("data/graphics/particles/jet-engine"), Gdx.files.internal("data/graphics/particles"));
@@ -108,6 +106,8 @@ public class MainMenuScreen implements Screen
 			
 		// Tunnel
 		tunnel = new Tunnel(new GameData());
+		
+		Assets.menu.play();
 	}
 
 	public void update(float delta) {
@@ -120,8 +120,7 @@ public class MainMenuScreen implements Screen
 				Assets.selectSound.play();
 //				if (!game.actionResolver.getSignedInGPGS()) game.actionResolver.loginGPGS();
 				Assets.menu.stop();
-				game.setScreen(new GameScreen(game));
-				return;
+				game.setScreen(game.gameScreen);
 			}
 			if (OverlapTester.pointInRectangle(leaderboardBounds, touchPoint.x, touchPoint.y)) {
 				Assets.selectSound.play();
@@ -209,6 +208,8 @@ public class MainMenuScreen implements Screen
 	@Override
 	public void show() {
 		pulseTimer.start();
+		if (!Assets.menu.isPlaying())
+			Assets.menu.play();
 	}
 
 	@Override

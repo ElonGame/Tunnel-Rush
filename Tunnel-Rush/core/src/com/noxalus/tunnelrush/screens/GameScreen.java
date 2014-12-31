@@ -85,8 +85,8 @@ public class GameScreen implements Screen
 		
 		Assets.introMusic.setOnCompletionListener(new OnCompletionListener() {
 			public void onCompletion(Music music) {
-				if (game.actionResolver.getSignedInGPGS())
-					game.actionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQAQ");
+				if (game.ActionResolver.getSignedInGPGS())
+					game.ActionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQAQ");
 				gameData.cameraRotationEnabled = true;
 				Assets.loopMusic.play();
 			}
@@ -210,35 +210,37 @@ public class GameScreen implements Screen
 			{
 			case NONE:
 				break;
+				/*
 			case INCREASE:
-				gameData.maxWallDistance += Config.WallDistanceChangeStep * delta;
+				gameData.wallDistance += Config.WallDistanceChangeStep * delta;
 				break;
 			case DECREASE:
-				gameData.maxWallDistance -= Config.WallDistanceChangeStep * delta;
+				gameData.wallDistance -= Config.WallDistanceChangeStep * delta;
 				break;
+				*/
 			}
 			
-			gameData.maxWallDistance = MathUtils.clamp(gameData.maxWallDistance, Config.MinWallDistance, Config.InitialMaxWallDistance * 1.5f);
+			//gameData.maxWallDistance = MathUtils.clamp(gameData.maxWallDistance, Config.MinWallDistance, Config.InitialMaxWallDistance * 1.5f);
 		}
 		else
 		{
 			if (!gameData.gameOver)
 			{
 				// Submit the score with the GPGS
-				if (game.actionResolver.getSignedInGPGS())
-					game.actionResolver.submitScoreGPGS(gameData.score);
+				if (game.ActionResolver.getSignedInGPGS())
+					game.ActionResolver.submitScoreGPGS(gameData.score);
 				
 				// Achivements unlocked ?
-				if (game.actionResolver.getSignedInGPGS())
+				if (game.ActionResolver.getSignedInGPGS())
 				{
 					if (gameData.score >= 1000)
-						game.actionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQAg");
+						game.ActionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQAg");
 					else if (gameData.score >= 10000)
-						game.actionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQAw");
+						game.ActionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQAw");
 					else if (gameData.score >= 50000)
-						game.actionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQBA");
+						game.ActionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQBA");
 					else if (gameData.score >= 100000)
-						game.actionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQBQ");
+						game.ActionResolver.unlockAchievementGPGS("CgkIup-0m9sMEAIQBQ");
 				}
 				
 				if (gameData.highscore < gameData.score)
@@ -258,7 +260,6 @@ public class GameScreen implements Screen
 				Config.Settings.flush();
 				
 				gameData.gameOver = true;
-				
 
 				Assets.introMusic.stop();
 				Assets.loopMusic.stop();
@@ -278,21 +279,24 @@ public class GameScreen implements Screen
 		Gdx.gl.glClearColor(0.32f, 0.5f, 1, 1);
 		//Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+		
 		game.SpriteBatch.setProjectionMatrix(camera.combined);
 
 		game.SpriteBatch.begin();
+					
+		//player.DrawParticles(game.SpriteBatch, delta);
 
+
+		
+//		Gdx.gl.glColorMask(true, true, true, false);
+//		game.SpriteBatch.draw(player.fboRegion, 0, 0, Config.GameWidth, Config.GameHeight);
+		
+		
 		player.Draw(game.SpriteBatch, delta);
-		
+				
 		tunnel.Draw(game.SpriteBatch, delta);
-		
-		game.SpriteBatch.end();
 
-		//player.DrawBoundingBox();
-		
 		game.SpriteBatch.setProjectionMatrix(hudCamera.combined);
-		game.SpriteBatch.begin();
 
 		String scoreValueString = Integer.toString((int)gameData.score);
 		String highScoreValueString = Integer.toString(gameData.highscore);
@@ -390,6 +394,12 @@ public class GameScreen implements Screen
 		}
 		
 		game.SpriteBatch.end();
+		
+//		game.SpriteBatch.begin();
+//		
+//		player.DrawBoundingBox();
+//		
+//		game.SpriteBatch.end();
 	}
 	
 	@Override

@@ -3,6 +3,7 @@ package com.noxalus.tunnelrush.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -40,6 +42,7 @@ public class MainMenuScreen implements Screen
 	Tunnel tunnel;
 
 	float playButtonScale;
+	float playerBoyScale;
 	
 	// Particles
 	ParticleEffectPool bombEffectPool;
@@ -48,21 +51,26 @@ public class MainMenuScreen implements Screen
 	Timer pulseTimer;
 	PulseTask pulseTask;
 	
+	// Camera
+	private OrthographicCamera hudCamera;
+	
 	public MainMenuScreen (TunnelRush game) {
 		this.game = game;
 		
+		playerBoyScale = 4;
 		playerBoyBounds = new Rectangle(
-				(Config.GameWidth / 2) - (320 / 2), 
-				Config.GameHeight - 320 - (Config.GameHeight / 3),
-				320, 320);
+				(Config.GameWidth / 2) - ((Config.PlayerSpriteWidth * playerBoyScale) / 2), 
+				Config.GameHeight - (Config.PlayerSpriteHeight * playerBoyScale) - (Config.GameHeight / 3),
+				Config.PlayerSpriteWidth * playerBoyScale, 
+				Config.PlayerSpriteHeight * playerBoyScale);
 		
 		playerGirlBounds = new Rectangle(
 				);
 		
-		playButtonScale = 1.2f;
+		playButtonScale = 1.1f;
 		playBounds = new Rectangle(
 				(Config.GameWidth / 2) - ((Assets.play.getRegionWidth() * playButtonScale) / 2), 
-				(Config.GameHeight * 0.37f) - Assets.play.getRegionHeight(),
+				(Config.GameHeight * 0.38f) - Assets.play.getRegionHeight(),
 				(Assets.play.getRegionWidth() * playButtonScale),
 				(Assets.play.getRegionHeight() * playButtonScale));
 		
@@ -105,9 +113,15 @@ public class MainMenuScreen implements Screen
 		pulseTimer.scheduleTask(pulseTask, 0, 0.1f);
 			
 		// Tunnel
-		tunnel = new Tunnel(new GameData());
+		GameData gameData = new GameData();
+		gameData.initialize();
+		tunnel = new Tunnel(gameData);
 		
 		Assets.menu.play();
+		
+		// Camera
+		hudCamera = new OrthographicCamera();
+		hudCamera.setToOrtho(false, Config.GameWidth, Config.GameHeight);
 	}
 
 	public void update(float delta) {
@@ -117,21 +131,22 @@ public class MainMenuScreen implements Screen
 //			guiCam.unproject(touchPoint.set(Gdx.input.getX(), Gdx.input.getY(), 0));
 			touchPoint.set(Gdx.input.getX(), Config.GameHeight - Gdx.input.getY(), 0);
 			if (OverlapTester.pointInRectangle(playBounds, touchPoint.x, touchPoint.y)) {
+				Assets.menu.stop();
 				Assets.selectSound.play();
 //				if (!game.actionResolver.getSignedInGPGS()) game.actionResolver.loginGPGS();
-				Assets.menu.stop();
+				
 				game.setScreen(game.gameScreen);
 			}
 			if (OverlapTester.pointInRectangle(leaderboardBounds, touchPoint.x, touchPoint.y)) {
 				Assets.selectSound.play();
-				if (game.actionResolver.getSignedInGPGS()) game.actionResolver.getLeaderboardGPGS();
-				else game.actionResolver.loginGPGS();
+				if (game.ActionResolver.getSignedInGPGS()) game.ActionResolver.getLeaderboardGPGS();
+				else game.ActionResolver.loginGPGS();
 				return;
 			}
 			if (OverlapTester.pointInRectangle(achievementsBounds, touchPoint.x, touchPoint.y)) {
 				Assets.selectSound.play();
-				if (game.actionResolver.getSignedInGPGS()) game.actionResolver.getAchievementsGPGS();
-				else game.actionResolver.loginGPGS();
+				if (game.ActionResolver.getSignedInGPGS()) game.ActionResolver.getAchievementsGPGS();
+				else game.ActionResolver.loginGPGS();
 				return;
 			}
 			if (OverlapTester.pointInRectangle(rateBounds, touchPoint.x, touchPoint.y)) {
@@ -144,6 +159,8 @@ public class MainMenuScreen implements Screen
 	public void draw(float delta) {
 		Gdx.gl.glClearColor(0.32f, 0.5f, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		game.SpriteBatch.setProjectionMatrix(hudCamera.combined);
 		
 		game.SpriteBatch.begin();
 		

@@ -31,6 +31,10 @@ public class Wall implements DrawableGameEntity
 	private Sprite borderBottom;
 	private Sprite joinBorder;
 
+	private int currentFactor;
+	
+	private boolean increaseWallDistance;
+	
 	public Wall(int id, boolean isLeftWall, ArrayList<Wall> leftWalls, ArrayList<Wall> rightWalls, GameData gameData)
 	{
 		// References
@@ -73,25 +77,29 @@ public class Wall implements DrawableGameEntity
 		border = new Sprite(Assets.pixelWalBorder);
 		border.setSize(Config.WallBorderWidth, Config.WallHeight);
 		border.setColor(Color.valueOf("000000"));
-
+		//border.setAlpha(0.5f);
+		
 		if (id == Config.MaxWallNumber + 2)
 		{
 			borderBottom = new Sprite(Assets.pixelWallBorderBottom);
 			borderBottom.setSize(sprite.getWidth() + Config.WallBorderWidth, Config.WallStep);
 			borderBottom.setColor(Color.valueOf("000000"));
 		}
+		
+		currentFactor = 1;
+		increaseWallDistance = false;
 	}
 
 	@Override
 	public void Update(float delta)
 	{
 		// Wall speed according to difficulty
-		if (gameData.difficulty < Config.MaxWallSpeedIntervals.length && velocity < Config.MaxWallSpeedIntervals[gameData.difficulty])
+		if (!gameData.isDemo && (gameData.difficulty < Config.MaxWallSpeedIntervals.length && velocity < Config.MaxWallSpeedIntervals[gameData.difficulty]))
 		{
-			velocity += Config.WallSpeedStep * delta;
+			velocity += (Config.WallSpeedStep * delta);
 		}
 
-		sprite.setY(sprite.getY() + (velocity * delta));
+		sprite.setY(sprite.getY() + velocity * delta);
 
 		// Reset wall
 		if (sprite.getY() >= (Config.GameHeight + Config.WallHeight))
@@ -116,7 +124,7 @@ public class Wall implements DrawableGameEntity
 
 		if (isLeftWall)
 		{
-			border.setPosition(sprite.getX() + sprite.getWidth(), sprite.getY());
+			border.setPosition(sprite.getX() + sprite.getWidth() - Config.WallBorderWidth, sprite.getY());
 
 			joinBorder.setY(sprite.getY() + sprite.getHeight());
 
@@ -152,7 +160,7 @@ public class Wall implements DrawableGameEntity
 	}
 
 	public boolean Intersects(Rectangle boundingBox)
-	{
+    {
 		return this.boundingBox.overlaps(boundingBox);
 	}
 
@@ -162,28 +170,61 @@ public class Wall implements DrawableGameEntity
 		
 		// -1 => tunnel go to the left, 1 => tunnel go to the right
 		int factor = (Config.random.nextFloat() > 0.5f) ? 1 : -1;
+		//factor = currentFactor;
 
-		float wallDistance = gameData.maxWallDistance;
+		if (increaseWallDistance)
+		{
+			if (gameData.wallDistance >= Config.MaxWallDistance)
+				increaseWallDistance = false;
+			else
+				gameData.wallDistance++;
+		}	
+		else
+		{
+			if (gameData.wallDistance <= Config.MinWallDistance)
+				increaseWallDistance = true;
+			else
+				gameData.wallDistance--;
+		}
+		
+		float wallDistance = gameData.wallDistance;
 
 		if (hasReset)
 		{
 			if (isLeftWall)
 			{
 				width = (leftWalls.get((id + 1) % leftWalls.size()).sprite.getWidth() - outScreenSpace);
-
+				int maxWidth = (int) (Config.GameWidth - wallDistance - Config.WallBorderWidth);
+				/*
 				if (width + wallDistance > Config.GameWidth - Config.WallStep)
 					factor = -1;
+				*/
 
-				width += Config.WallStep * factor/* * Random(1, 5)*/;
+                /*
+				if (width <= Config.WallBorderWidth * Config.MaxWallNumber)
+					tunnel.leftWallDirection = 1;
+				else if (width >= maxWidth)
+					tunnel.leftWallDirection = -1;
+				*/
+
+				width += Config.WallStep * factor /* * tunnel.leftWallDirection * Random(1, 5)*/;
+				
+				width = MathUtils.clamp(width, 0, maxWidth);
 			}
 			else
 			{
+				float leftWallWidth = leftWalls.get(id).sprite.getWidth() - outScreenSpace;
+				int maxWidth = (int) (Config.GameWidth - leftWallWidth - wallDistance - Config.WallBorderWidth);
 				width = (rightWalls.get((id + 1) % rightWalls.size()).sprite.getWidth() - outScreenSpace);
 
-				if (width <= Config.MinWallWidth)
-					factor = 1;
+//				if (width <= Config.MinWallWidth)
+//					factor = 1;
 				
-				width += Config.WallStep * factor /** Random(1, 5)*/;
+				//tunnel.rightWallDirection = increaseWallDistance ? 1 : -1;
+                width += Config.WallStep * factor /* * tunnel.rightWallDirection * Random(1, 5)*/;
+				
+				//width = MathUtils.clamp(width, 0, maxWidth);
+				//width = maxWidth;
 			}
 		}
 		else
@@ -223,7 +264,7 @@ public class Wall implements DrawableGameEntity
 			}
 		}
 
-		width = MathUtils.clamp(width, Config.MinWallWidth, Config.MaxWallWidth);
+		//width = MathUtils.clamp(width, Config.MinWallWidth, Config.MaxWallWidth);
 
 		/*
 		if (id > 0)
@@ -247,7 +288,7 @@ public class Wall implements DrawableGameEntity
 			float difference = 0;
 			if (isLeftWall)
 			{
-				joinBorder.setX(sprite.getX() + outScreenSpace + width);
+				joinBorder.setX(sprite.getX() + outScreenSpace + width - Config.WallBorderWidth);
 				float previousWallWidth = leftWalls.get((id + 1) % leftWalls.size()).sprite.getWidth() - outScreenSpace;
 				if (previousWallWidth < width)
 				{
@@ -261,7 +302,7 @@ public class Wall implements DrawableGameEntity
 			}
 			else
 			{
-				joinBorder.setX(Config.GameWidth - (width + Config.WallStep));
+				joinBorder.setX(Config.GameWidth - (width + Config.WallBorderWidth));
 				float previousWallWidth = rightWalls.get((id + 1) % rightWalls.size()).sprite.getWidth() - outScreenSpace;
 				if (previousWallWidth < width)
 				{
@@ -275,6 +316,8 @@ public class Wall implements DrawableGameEntity
 			}
 			
 			joinBorder.setColor(Color.valueOf("000000"));
+			joinBorder.setColor(joinBorder.getColor().r, joinBorder.getColor().g, joinBorder.getColor().b, 0.5f);
+
 			joinBorder.setSize(Math.abs(difference), Config.WallBorderWidth);
 		}
 

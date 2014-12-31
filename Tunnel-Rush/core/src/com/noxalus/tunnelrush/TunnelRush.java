@@ -1,46 +1,48 @@
 package com.noxalus.tunnelrush;
 
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.noxalus.tunnelrush.gameservices.ActionResolver;
 import com.noxalus.tunnelrush.screens.GameScreen;
 import com.noxalus.tunnelrush.screens.MainMenuScreen;
 
 public class TunnelRush extends Game {
-	public ActionResolver actionResolver;
-	public SpriteBatch SpriteBatch;
-	
-	// Screens
-	public GameScreen gameScreen;
-	public MainMenuScreen mainMenuScreen;
-	
-	public TunnelRush(ActionResolver actionResolver) {
-		this.actionResolver = actionResolver;
-	}
-	
+
+    public ActionResolver ActionResolver;
+    public SpriteBatch SpriteBatch;
+
+    // Screens
+    public GameScreen gameScreen;
+    public MainMenuScreen mainMenuScreen;
+
+    public TunnelRush(ActionResolver actionResolver) {
+        this.ActionResolver = actionResolver;
+    }
+
 	@Override
-	public void create() {
-		SpriteBatch = new SpriteBatch();
-		Assets.load();
-		
-		gameScreen = new GameScreen(this);
-		mainMenuScreen = new MainMenuScreen(this);
-		
-		setScreen(mainMenuScreen);
+	public void create () {
+        SpriteBatch = new SpriteBatch();
+        Assets.load();
+
+        gameScreen = new GameScreen(this);
+        mainMenuScreen = new MainMenuScreen(this);
+
+        setScreen(mainMenuScreen);
 	}
-	
+
 	@Override
-	public void render() {
+	public void render () {
 		super.render();
-	}
-	
-	/** {@link Game#dispose()} only calls {@link Screen#hide()} so you need to override {@link Game#dispose()} in order to call
-	 * {@link Screen#dispose()} on each of your screens which still need to dispose of their resources. SuperJumper doesn't
-	 * actually have such resources so this is only to complete the example. */
-	@Override
-	public void dispose () {
-		super.dispose();
-		SpriteBatch.dispose();
-		getScreen().dispose();
+		/*
+        Gdx.gl.glClearColor(1, 0, 0, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		batch.begin();
+		batch.draw(img, 0, 0);
+		batch.end();
+        */
 	}
 }

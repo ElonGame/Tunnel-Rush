@@ -50,6 +50,7 @@ public class Player implements DrawableGameEntity
 	Array<PooledEffect> effects = new Array<PooledEffect>();
 	
 
+	public TextureRegion fboRegion;
 	private FrameBuffer fbo;
 	
 	public Sprite getSprite()
@@ -65,7 +66,8 @@ public class Player implements DrawableGameEntity
 	public Player(GameScreen gameScreen, GameData gameData)
 	{
 		fbo = new FrameBuffer(Format.RGB888, Config.GameWidth, Config.GameWidth, false);
-
+		fboRegion = new TextureRegion(fbo.getColorBufferTexture());
+		
 		this.gameScreen = gameScreen;
 		this.gameData = gameData;
 		
@@ -155,32 +157,35 @@ public class Player implements DrawableGameEntity
 		UpdateBoundingBox();
 	}
 
-	@Override
-	public void Draw(SpriteBatch spriteBatch, float delta)
+	public void DrawParticles(SpriteBatch spriteBatch, float delta)
 	{
 		// Particles
 		// Update and draw effects:
 		if (isAlive)
 		{
-//	        fbo.begin();
-//	        
-////	        fb.enableBlending();
-//	        Gdx.gl.glBlendFuncSeparate(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
-//
-//	        Gdx.gl.glClearColor(1, 1, 1, 0);
-//	        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+	        fbo.begin();
+	        
+//	        fb.enableBlending();
+	        //Gdx.gl.glBlendFuncSeparate(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+	        Gdx.gl.glEnable(GL20.GL_BLEND);
+			Gdx.gl.glBlendFuncSeparate(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
+	        
+	        Gdx.gl.glClearColor(0, 0, 0, 0);
+	        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 	        
 			for (int i = effects.size - 1; i >= 0; i--) {
 			    PooledEffect effect = effects.get(i);
 			    effect.setPosition(sprite.getX() + (sprite.getWidth() / 2), sprite.getY() + (sprite.getHeight() / 1.5f));
 			    effect.draw(spriteBatch, delta);
+			    
 			    if (effect.isComplete()) {
 			        effect.free();
 			        effects.removeIndex(i);
 			    }
 			}
 			
-//			fbo.end();
+			fbo.end();
 		}
 		else
 		{
@@ -190,11 +195,18 @@ public class Player implements DrawableGameEntity
 			effects.clear();
 		}
 		
+		
+	}
+	
+	@Override
+	public void Draw(SpriteBatch spriteBatch, float delta)
+	{
 		sprite.setRegion(Assets.playerAnimation.getKeyFrame(animationState, true));
 		sprite.flip(false, true);
 //		spriteBatch.draw(Assets.playerAnimation.getKeyFrame(animationState, true),
 //				sprite.getX(), sprite.getY() - 25, sprite.getOriginX(), sprite.getOriginY(), 
 //				sprite.getWidth(), sprite.getHeight(), sprite.getScaleX(), sprite.getScaleY(), sprite.getRotation());
+		
 		sprite.draw(spriteBatch);
 	}
 	
@@ -216,12 +228,12 @@ public class Player implements DrawableGameEntity
 	
 	private void UpdateBoundingBox()
 	{
-		int factor = 3;
+		float factor = 0.65f;
 		
 		boundingBox.set(
-				this.sprite.getX() + (this.sprite.getWidth() / factor) / 2, 
-				this.sprite.getY() + (this.sprite.getHeight() / factor) / 1.5f, 
-				this.sprite.getWidth() - (this.sprite.getWidth() / factor), 
-				this.sprite.getHeight() - (this.sprite.getHeight() / factor));
+				(int)(sprite.getX() + (sprite.getWidth() - (sprite.getWidth() * factor)) / 2), 
+				(int)(sprite.getY() + (sprite.getHeight() - (sprite.getHeight() * factor)) / 3), 
+				(int)(sprite.getWidth() * factor), 
+				(int)(sprite.getHeight() * factor));
 	}
 }

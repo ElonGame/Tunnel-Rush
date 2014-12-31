@@ -82,7 +82,7 @@ public class Wall implements DrawableGameEntity
 		if (id == Config.MaxWallNumber + 2)
 		{
 			borderBottom = new Sprite(Assets.pixelWallBorderBottom);
-			borderBottom.setSize(sprite.getWidth() + Config.WallBorderWidth, Config.WallStep);
+			borderBottom.setSize(sprite.getWidth() + Config.WallBorderWidth - Config.WallStep, Config.WallStep);
 			borderBottom.setColor(Color.valueOf("000000"));
 		}
 		
@@ -170,7 +170,6 @@ public class Wall implements DrawableGameEntity
 		
 		// -1 => tunnel go to the left, 1 => tunnel go to the right
 		int factor = (Config.random.nextFloat() > 0.5f) ? 1 : -1;
-		//factor = currentFactor;
 
 		if (increaseWallDistance)
 		{
@@ -195,21 +194,10 @@ public class Wall implements DrawableGameEntity
 			{
 				width = (leftWalls.get((id + 1) % leftWalls.size()).sprite.getWidth() - outScreenSpace);
 				int maxWidth = (int) (Config.GameWidth - wallDistance - Config.WallBorderWidth);
-				/*
-				if (width + wallDistance > Config.GameWidth - Config.WallStep)
-					factor = -1;
-				*/
 
-                /*
-				if (width <= Config.WallBorderWidth * Config.MaxWallNumber)
-					tunnel.leftWallDirection = 1;
-				else if (width >= maxWidth)
-					tunnel.leftWallDirection = -1;
-				*/
-
-				width += Config.WallStep * factor /* * tunnel.leftWallDirection * Random(1, 5)*/;
+				width += Config.WallStep * factor /* * Random(1, 5)*/;
 				
-				width = MathUtils.clamp(width, 0, maxWidth);
+				width = MathUtils.clamp(width, Config.WallStep, maxWidth);
 			}
 			else
 			{
@@ -217,13 +205,9 @@ public class Wall implements DrawableGameEntity
 				int maxWidth = (int) (Config.GameWidth - leftWallWidth - wallDistance - Config.WallBorderWidth);
 				width = (rightWalls.get((id + 1) % rightWalls.size()).sprite.getWidth() - outScreenSpace);
 
-//				if (width <= Config.MinWallWidth)
-//					factor = 1;
+                width += Config.WallStep * factor /* * Random(1, 5)*/;
 				
-				//tunnel.rightWallDirection = increaseWallDistance ? 1 : -1;
-                width += Config.WallStep * factor /* * tunnel.rightWallDirection * Random(1, 5)*/;
-				
-				//width = MathUtils.clamp(width, 0, maxWidth);
+				width = MathUtils.clamp(width, Config.WallStep, maxWidth);
 				//width = maxWidth;
 			}
 		}
@@ -242,8 +226,7 @@ public class Wall implements DrawableGameEntity
 				}
 				else
 				{
-					width = Config.random.nextInt(Config.MaxWallWidth);
-					width = 0;
+					width = MathUtils.clamp(Config.random.nextInt(Config.MaxInitialWallWidth), Config.WallStep, Config.MaxInitialWallWidth);
 				}
 			}
 			else
@@ -316,7 +299,7 @@ public class Wall implements DrawableGameEntity
 			}
 			
 			joinBorder.setColor(Color.valueOf("000000"));
-			joinBorder.setColor(joinBorder.getColor().r, joinBorder.getColor().g, joinBorder.getColor().b, 0.5f);
+			joinBorder.setColor(joinBorder.getColor().r, joinBorder.getColor().g, joinBorder.getColor().b, 1.f);
 
 			joinBorder.setSize(Math.abs(difference), Config.WallBorderWidth);
 		}

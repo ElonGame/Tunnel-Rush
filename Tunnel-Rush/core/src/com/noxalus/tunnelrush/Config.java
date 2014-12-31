@@ -47,7 +47,8 @@ public class Config {
 	
 	public static final int MaxWallDistanceStep = 5;
 	public static final int MaxWallWidth = (int)(Config.GameWidth - (Config.PlayerSpriteWidth * 1.25f));
-	public static final int WallHeight = Config.GameHeight / MaxWallNumber;
+    public static final int MaxInitialWallWidth = Config.MaxWallWidth / 2;
+    public static final int WallHeight = Config.GameHeight / MaxWallNumber;
 
 	public static final int[] MaxWallSpeedIntervals = new int[]
 			{

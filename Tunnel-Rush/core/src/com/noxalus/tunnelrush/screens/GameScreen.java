@@ -151,6 +151,7 @@ public class GameScreen implements Screen
 		Assets.introMusic.play();
 		
 		gameData.initialize();
+        gameData.isDemo = false;
 	}
 
 	public void reset()

@@ -1,7 +1,7 @@
 package com.noxalus.tunnelrush;
 
 public class GameData {
-	public enum TunnelPatterns {
+	public enum TunnelPatternType {
 		NONE, // The tunnel keep to go straight
 		DECREASE, // The distance between left and right walls decrease
         INCREASE, // The distance between left and right walls increase
@@ -16,7 +16,7 @@ public class GameData {
 	public int score;
 	public int difficulty;
 	public float wallDistance;
-	public TunnelPatterns tunnelPatterns;
+	public TunnelPatternType tunnelPattern;
 	public int highscore;
 	public int deathNumber;
 
@@ -41,10 +41,11 @@ public class GameData {
 		score = 0;
 		difficulty = 0;
 		wallDistance = Config.MaxWallDistance;
-        tunnelPatterns = TunnelPatterns.NONE;
+        tunnelPattern = TunnelPatternType.NONE;
 		highscore = Config.Settings.getInteger("highscore");
 		deathNumber = Config.Settings.getInteger("deathNumber");
-		
+
+        // Camera
 		cameraRotationAngle = 0f;
 		cameraRotationEnabled = false;
 		cameraRotationSpeed = 0f;

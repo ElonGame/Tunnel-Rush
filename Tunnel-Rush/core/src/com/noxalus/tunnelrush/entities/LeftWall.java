@@ -89,10 +89,10 @@ public class LeftWall extends Wall
             width = nextLeftWall.sprite.getWidth() - outScreenSpace;
             int maxWidth = (int) (Config.GameWidth - wallDistance - Config.WallBorderWidth);
 
-            if (gameData.tunnelPatterns == GameData.TunnelPatterns.RIGHT || gameData.tunnelPatterns == GameData.TunnelPatterns.DECREASE) {
+            if (gameData.tunnelPattern == GameData.TunnelPatternType.RIGHT || gameData.tunnelPattern == GameData.TunnelPatternType.DECREASE) {
                 factor = 1;
                 width += Config.WallStep * factor;
-            } else if (gameData.tunnelPatterns == GameData.TunnelPatterns.LEFT || gameData.tunnelPatterns == GameData.TunnelPatterns.INCREASE) {
+            } else if (gameData.tunnelPattern == GameData.TunnelPatternType.LEFT || gameData.tunnelPattern == GameData.TunnelPatternType.INCREASE) {
                 factor = -1;
                 width += Config.WallStep * factor;
             }

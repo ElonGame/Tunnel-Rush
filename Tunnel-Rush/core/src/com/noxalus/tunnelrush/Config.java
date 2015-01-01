@@ -32,7 +32,7 @@ public class Config {
 	public static final int WallBorderWidth = 10;
 	public static final int MinWallWidth = Config.WallStep * 2;
 	public static final float MinWallDistance = Config.PlayerSpriteWidth * 1.25f;
-	public static final float MaxWallDistance = 100;//(int)(Config.GameWidth / 1.25f);
+	public static final float MaxWallDistance = (int)(Config.GameWidth / 1.25f);
 	public static final float WallDistanceChangeStep = 50f;
 	public static final float[] MaxWallDistanceIntervals = new float[]
     {

@@ -97,12 +97,12 @@ public class RightWall extends Wall
             int maxWidth = (int) (Config.GameWidth - leftWallWidth - wallDistance - Config.WallBorderWidth);
             width = nextRightWall.sprite.getWidth() - outScreenSpace;
 
-            if (gameData.tunnelPatterns == GameData.TunnelPatterns.RIGHT || gameData.tunnelPatterns == GameData.TunnelPatterns.INCREASE)
+            if (gameData.tunnelPattern == GameData.TunnelPatternType.RIGHT || gameData.tunnelPattern == GameData.TunnelPatternType.INCREASE)
             {
                 factor = -1;
                 width += Config.WallStep * factor;
             }
-            else if (gameData.tunnelPatterns == GameData.TunnelPatterns.LEFT || gameData.tunnelPatterns == GameData.TunnelPatterns.DECREASE)
+            else if (gameData.tunnelPattern == GameData.TunnelPatternType.LEFT || gameData.tunnelPattern == GameData.TunnelPatternType.DECREASE)
             {
                 factor = 1;
                 width += Config.WallStep * factor;

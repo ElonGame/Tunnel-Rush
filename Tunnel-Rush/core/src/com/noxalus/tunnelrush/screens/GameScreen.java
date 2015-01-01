@@ -140,7 +140,7 @@ public class GameScreen implements Screen
 		wallDistanceTimer.clear();
 		cameraRotationTimer.clear();
 		
-		//wallDistanceTimer.scheduleTask(changeWallDistanceTask, 0, 1);
+		wallDistanceTimer.scheduleTask(changeWallDistanceTask, 0, 1);
 		cameraRotationTimer.scheduleTask(changeCameraRotationTask, 0, 5);
 		
 		wallDistanceTimer.start();
@@ -207,7 +207,7 @@ public class GameScreen implements Screen
 			if (gameData.score / Config.ScoreToIncreaseDifficulty > (gameData.difficulty + 1))
 				gameData.difficulty++;
 
-			switch(gameData.tunnelPatterns)
+			switch(gameData.tunnelPattern)
 			{
 			    case NONE:
 
@@ -313,9 +313,9 @@ public class GameScreen implements Screen
 		
 		//font.draw(spriteBatch, Integer.toString((int)cameraRotationAngle), 0, 0);
 		
-		/*
+
 		String str = "";
-		switch(wallDistanceType)
+		switch(gameData.tunnelPattern)
 		{
 		case NONE:
 			str = "NONE";
@@ -324,11 +324,19 @@ public class GameScreen implements Screen
 			str = "INCREASE";
 			break;
 		case DECREASE:
-			str = "DECREASE";
+            str = "DECREASE";
 			break;
+        case RIGHT:
+            str = "RIGHT";
+            break;
+        case LEFT:
+            str = "LEFT";
+            break;
 		}
-		font.draw(spriteBatch, str, 0, 0);
-		
+
+        Assets.font.draw(game.SpriteBatch, str, 0, 0);
+
+        /*
 		switch(cameraRotationType)
 		{
 		case NONE:

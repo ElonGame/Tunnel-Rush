@@ -11,7 +11,7 @@ import com.noxalus.tunnelrush.Assets;
 import com.noxalus.tunnelrush.Config;
 import com.noxalus.tunnelrush.GameData;
 import com.noxalus.tunnelrush.screens.GameScreen;
-import com.noxalus.tunnelrush.GameData.TunnelPatterns;
+import com.noxalus.tunnelrush.GameData.TunnelPatternType;
 
 public class Wall implements DrawableGameEntity
 {

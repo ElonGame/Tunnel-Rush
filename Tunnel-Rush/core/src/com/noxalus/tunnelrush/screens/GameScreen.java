@@ -140,7 +140,7 @@ public class GameScreen implements Screen
 		wallDistanceTimer.clear();
 		cameraRotationTimer.clear();
 		
-		wallDistanceTimer.scheduleTask(changeWallDistanceTask, 0, 1);
+		//wallDistanceTimer.scheduleTask(changeWallDistanceTask, 0, 1);
 		cameraRotationTimer.scheduleTask(changeCameraRotationTask, 0, 5);
 		
 		wallDistanceTimer.start();

@@ -12,8 +12,8 @@ public class Tunnel implements DrawableGameEntity {
 	private GameData gameData;
 	
 	private int realWallNumber;
-	private ArrayList<Wall> leftWalls;
-	private ArrayList<Wall> rightWalls;
+	private ArrayList<LeftWall> leftWalls;
+	private ArrayList<RightWall> rightWalls;
 	
 	public Tunnel(GameData gameData)
 	{
@@ -21,8 +21,8 @@ public class Tunnel implements DrawableGameEntity {
 		
 		this.realWallNumber = Config.MaxWallNumber + 2;
 		
-		leftWalls = new ArrayList<Wall>();
-		rightWalls = new ArrayList<Wall>();
+		leftWalls = new ArrayList<LeftWall>();
+		rightWalls = new ArrayList<RightWall>();
 		
 		player = null;
 		
@@ -39,10 +39,28 @@ public class Tunnel implements DrawableGameEntity {
 		leftWalls.clear();
 		rightWalls.clear();
 		
-		for (int i = 0; i < realWallNumber + 1; i++) {
-			leftWalls.add(new Wall(i, true, leftWalls, rightWalls, gameData));
-			rightWalls.add(new Wall(i, false, leftWalls, rightWalls, gameData));
+		for (int i = 0; i < realWallNumber + 1; i++)
+        {
+            LeftWall previousLeftWall = (i == 0) ? null : leftWalls.get(i - 1);
+            RightWall previousRightWall = (i == 0) ? null : rightWalls.get(i - 1);
+
+            LeftWall leftWall = new LeftWall(i, gameData, previousLeftWall, null);
+            RightWall rightWall = new RightWall(i, gameData, leftWall, previousRightWall, null);
+
+            if (previousLeftWall != null)
+                previousLeftWall.setNextLeftWall(leftWall);
+            if (previousRightWall != null)
+                previousRightWall.setNextRightWall(rightWall);
+
+            leftWalls.add(leftWall);
+			rightWalls.add(rightWall);
 		}
+
+        leftWalls.get(0).setPreviousLeftWall(leftWalls.get(realWallNumber));
+        rightWalls.get(0).setPreviousRightWall(rightWalls.get(realWallNumber));
+
+        leftWalls.get(realWallNumber).setNextLeftWall(leftWalls.get(0));
+        rightWalls.get(realWallNumber).setNextRightWall(rightWalls.get(0));
 	}
 	
 	@Override

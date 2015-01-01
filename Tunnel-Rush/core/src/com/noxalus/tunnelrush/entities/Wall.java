@@ -11,6 +11,7 @@ import com.noxalus.tunnelrush.Assets;
 import com.noxalus.tunnelrush.Config;
 import com.noxalus.tunnelrush.GameData;
 import com.noxalus.tunnelrush.screens.GameScreen;
+import com.noxalus.tunnelrush.GameData.TunnelPatterns;
 
 public class Wall implements DrawableGameEntity
 {
@@ -170,7 +171,7 @@ public class Wall implements DrawableGameEntity
 		
 		// -1 => tunnel go to the left, 1 => tunnel go to the right
 		int factor = (Config.random.nextFloat() > 0.5f) ? 1 : -1;
-
+        /*
 		if (increaseWallDistance)
 		{
 			if (gameData.wallDistance >= Config.MaxWallDistance)
@@ -185,7 +186,8 @@ public class Wall implements DrawableGameEntity
 			else
 				gameData.wallDistance--;
 		}
-		
+		*/
+
 		float wallDistance = gameData.wallDistance;
 
 		if (hasReset)
@@ -195,9 +197,19 @@ public class Wall implements DrawableGameEntity
 				width = (leftWalls.get((id + 1) % leftWalls.size()).sprite.getWidth() - outScreenSpace);
 				int maxWidth = (int) (Config.GameWidth - wallDistance - Config.WallBorderWidth);
 
-				width += Config.WallStep * factor /* * Random(1, 5)*/;
-				
-				width = MathUtils.clamp(width, Config.WallStep, maxWidth);
+                if (gameData.tunnelPatterns == TunnelPatterns.RIGHT || gameData.tunnelPatterns == TunnelPatterns.DECREASE)
+                {
+                    factor = 1;
+                    width += Config.WallStep * factor;
+                }
+                else if (gameData.tunnelPatterns == TunnelPatterns.LEFT || gameData.tunnelPatterns == TunnelPatterns.INCREASE)
+                {
+                    factor = -1;
+                    width += Config.WallStep * factor;
+                }
+
+				//width += Config.WallStep * factor /* * Random(1, 5)*/;
+				width = MathUtils.clamp(width, Config.WallBorderWidth * 2, maxWidth);
 			}
 			else
 			{
@@ -205,11 +217,20 @@ public class Wall implements DrawableGameEntity
 				int maxWidth = (int) (Config.GameWidth - leftWallWidth - wallDistance - Config.WallBorderWidth);
 				width = (rightWalls.get((id + 1) % rightWalls.size()).sprite.getWidth() - outScreenSpace);
 
-                width += Config.WallStep * factor /* * Random(1, 5)*/;
-				
-				width = MathUtils.clamp(width, Config.WallStep, maxWidth);
-				//width = maxWidth;
-			}
+                if (gameData.tunnelPatterns == TunnelPatterns.RIGHT || gameData.tunnelPatterns == TunnelPatterns.INCREASE)
+                {
+                    factor = -1;
+                    width += Config.WallStep * factor;
+                }
+                else if (gameData.tunnelPatterns == TunnelPatterns.LEFT || gameData.tunnelPatterns == TunnelPatterns.DECREASE)
+                {
+                    factor = 1;
+                    width += Config.WallStep * factor;
+                }
+
+                //width += Config.WallStep * factor /* * Random(1, 5)*/;
+                width = MathUtils.clamp(width, Config.WallBorderWidth, maxWidth);
+            }
 		}
 		else
 		{
@@ -222,12 +243,13 @@ public class Wall implements DrawableGameEntity
 					if (width + wallDistance > Config.GameWidth - Config.WallStep)
 						factor = -1;
 
-					width += Config.WallStep * factor;
+					//width += Config.WallStep * factor;
 				}
 				else
 				{
 					width = MathUtils.clamp(Config.random.nextInt(Config.MaxInitialWallWidth), Config.WallStep, Config.MaxInitialWallWidth);
-				}
+                    width = Config.MaxInitialWallWidth;
+                }
 			}
 			else
 			{
@@ -238,7 +260,7 @@ public class Wall implements DrawableGameEntity
 					if (width <= Config.MinWallWidth)
 						factor = -1;
 
-					width += Config.WallStep * factor;
+					//width += Config.WallStep * factor;
 				}
 				else
 				{
@@ -246,25 +268,6 @@ public class Wall implements DrawableGameEntity
 				}
 			}
 		}
-
-		//width = MathUtils.clamp(width, Config.MinWallWidth, Config.MaxWallWidth);
-
-		/*
-		if (id > 0)
-		{
-			float difference = 0;
-			if (isLeftWall)
-			{
-				difference = (leftWalls.get((id - 1)).sprite.getWidth() - outScreenSpace) - width;
-			}
-			else
-			{
-				difference = (rightWalls.get((id - 1)).sprite.getWidth() - outScreenSpace) - width;
-			}
-
-			joinBorder.setSize(Math.abs(difference), Config.WallBorderWidth);
-		}
-		*/
 		
 		if (hasReset)
 		{

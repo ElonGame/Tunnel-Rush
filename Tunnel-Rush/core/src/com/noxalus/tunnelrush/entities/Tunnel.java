@@ -52,7 +52,7 @@ public class Tunnel implements DrawableGameEntity {
 			rightWalls.get(i).Update(delta);
 			
 			// Intersects ?
-			if (player != null && player.isAlive)
+			if (player != null && player.isAlive && !gameData.godMode)
 			{
 				if (leftWalls.get(i).Intersects(player.getBoundingBox()) ||
 					rightWalls.get(i).Intersects(player.getBoundingBox()))

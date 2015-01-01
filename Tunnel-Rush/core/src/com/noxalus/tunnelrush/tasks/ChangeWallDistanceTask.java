@@ -3,7 +3,7 @@ package com.noxalus.tunnelrush.tasks;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.noxalus.tunnelrush.Config;
 import com.noxalus.tunnelrush.GameData;
-import com.noxalus.tunnelrush.GameData.WallDistanceType;
+import com.noxalus.tunnelrush.GameData.TunnelPatterns;
 
 public class ChangeWallDistanceTask extends Task
 {
@@ -16,27 +16,35 @@ public class ChangeWallDistanceTask extends Task
 	
 	@Override
 	public void run() {
-		
-		if (gameData.score <= 0 || Config.random.nextFloat() > 0.5f)
+/*
+		if (gameData.isDemo || Config.random.nextFloat() > 0.5f)
 			return;
-					
+*/
+
 		float randomValue = Config.random.nextFloat();
-		WallDistanceType newWallDistanceType;
+		TunnelPatterns newTunnelPattern;
 		
-		if (randomValue < 0.33f)
-		{
-			newWallDistanceType = WallDistanceType.NONE;
-		}
-		else if (randomValue < 0.66f)
-		{
-			newWallDistanceType = WallDistanceType.DECREASE;
-		}
+/*		if (randomValue < 1.f/6.f)
+		else*/ if (randomValue < 2.f/6.f)
+            newTunnelPattern = TunnelPatterns.DECREASE;
+        else if (randomValue < 3.f/6.f)
+            newTunnelPattern = TunnelPatterns.INCREASE;
+        else if (randomValue < 4.f/6.f)
+            newTunnelPattern = TunnelPatterns.RIGHT;
+        else if (randomValue < 5.f/6.f)
+            newTunnelPattern = TunnelPatterns.LEFT;
 		else
-		{
-			newWallDistanceType = WallDistanceType.INCREASE;
-		}
-		
+            newTunnelPattern = TunnelPatterns.NONE;
+
+/*
+        if (gameData.tunnelPatterns == TunnelPatterns.DECREASE)
+            newTunnelPattern = TunnelPatterns.INCREASE;
+        else if (gameData.tunnelPatterns == TunnelPatterns.INCREASE)
+            newTunnelPattern = TunnelPatterns.DECREASE;
+        else
+            newTunnelPattern = TunnelPatterns.NONE;
+*/
 		// Change wall distance type
-		gameData.wallDistanceType = newWallDistanceType;
+		gameData.tunnelPatterns = newTunnelPattern;
 	}
 }

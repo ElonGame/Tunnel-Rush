@@ -140,7 +140,7 @@ public class GameScreen implements Screen
 		wallDistanceTimer.clear();
 		cameraRotationTimer.clear();
 		
-		wallDistanceTimer.scheduleTask(changeWallDistanceTask, 0, 2);
+		wallDistanceTimer.scheduleTask(changeWallDistanceTask, 0, 1);
 		cameraRotationTimer.scheduleTask(changeCameraRotationTask, 0, 5);
 		
 		wallDistanceTimer.start();
@@ -207,18 +207,19 @@ public class GameScreen implements Screen
 			if (gameData.score / Config.ScoreToIncreaseDifficulty > (gameData.difficulty + 1))
 				gameData.difficulty++;
 
-			switch(gameData.wallDistanceType)
+			switch(gameData.tunnelPatterns)
 			{
-			case NONE:
-				break;
-				/*
-			case INCREASE:
-				gameData.wallDistance += Config.WallDistanceChangeStep * delta;
-				break;
-			case DECREASE:
-				gameData.wallDistance -= Config.WallDistanceChangeStep * delta;
-				break;
-				*/
+			    case NONE:
+
+                    break;
+                /*
+                case INCREASE:
+                    //gameData.wallDistance += Config.WallDistanceChangeStep * delta;
+                    break;
+                case DECREASE:
+                    //gameData.wallDistance -= Config.WallDistanceChangeStep * delta;
+                    break;
+            */
 			}
 			
 			//gameData.maxWallDistance = MathUtils.clamp(gameData.maxWallDistance, Config.MinWallDistance, Config.InitialMaxWallDistance * 1.5f);
